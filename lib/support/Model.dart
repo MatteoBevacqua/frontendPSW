@@ -106,6 +106,7 @@ class Model {
 
   Future<List<RouteModel>> searchRoutes(
       String depCity, String arrCity, DateTime from, DateTime to) async {
+    print(depCity);
     Map<String, String> params = Map();
     String endpoint;
     if (depCity != '' && arrCity != '') {

@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:first_from_zero/support/Model.dart';
+import 'package:first_from_zero/support/MyTypeAheadField.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -13,12 +16,10 @@ class SearchRoutes extends StatefulWidget {
 }
 
 class _SearchState extends State<SearchRoutes> {
-  TextEditingController _leftSearchController = TextEditingController(),
-      _rightSearchController = TextEditingController();
   DateTime _fromDate, _toDate;
   bool _searching = false;
   List<RouteModel> _routes;
-
+  TextEditingController _leftTypeAhead = TextEditingController(),_rightTypeAhead = TextEditingController();
   void _selectDate(BuildContext buildContext, bool first) async {
     final DateTime picked = await showDatePicker(
         context: buildContext,
@@ -53,31 +54,17 @@ class _SearchState extends State<SearchRoutes> {
           child: Row(
             children: [
               Flexible(
-                child:
-                TypeAheadField(
-                  textFieldConfiguration: TextFieldConfiguration(
-                      autofocus: false,
-                      style: DefaultTextStyle.of(context).style.copyWith(
-                          fontStyle: FontStyle.italic
-                      ),
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder()
-                      )
-                  ),
-                  suggestionsCallback: (pattern) async {
-                    return await Model.sharedInstance.getSuggestedCitiesByPattern(pattern);
-                  },
-                  itemBuilder: (context, suggestion) {
-                    return ListTile(
-                      leading: Icon(Icons.location_city_rounded),
-                      title: Text(suggestion.name),
-                      subtitle: Text(suggestion.country),
-                    );
-                  },
-                  onSuggestionSelected: (suggestion) {
-                   print(suggestion);
-                  },
-                ),
+                child: MyTypeAheadField(
+                    labelText: "Departure City",
+                    onSuggestionSelected: (pattern) async {
+                      return await Model.sharedInstance
+                          .getSuggestedCitiesByPattern(pattern);
+                    },
+                    textEditingController: _leftTypeAhead,
+                    onSubmit: (value) {
+                      _leftTypeAhead.text=value.name;
+                      _submitSearch();
+                    }),
               ),
               Container(
                 padding: const EdgeInsets.all(15.0),
@@ -85,20 +72,24 @@ class _SearchState extends State<SearchRoutes> {
                   icon: Icon(CupertinoIcons.arrow_left_right_square_fill),
                   highlightColor: Colors.black,
                   onPressed: () {
-                    var temp = _rightSearchController.text;
-                    _rightSearchController.text = _leftSearchController.text;
-                    _leftSearchController.text = temp;
+                    var temp = _rightTypeAhead.text;
+                    _rightTypeAhead.text = _leftTypeAhead.text;
+                    _leftTypeAhead.text = temp;
                   },
                 ),
               ),
               Flexible(
-                child: InputField(
-                  labelText: "Arrival City",
-                  controller: _leftSearchController,
-                  onSubmit: (value) {
-                    _submitSearch();
-                  },
-                ),
+                child: MyTypeAheadField(
+                    labelText: "Arrival City",
+                    onSuggestionSelected: (pattern) async {
+                      return await Model.sharedInstance
+                          .getSuggestedCitiesByPattern(pattern);
+                    },
+                    textEditingController: _rightTypeAhead,
+                    onSubmit: (value) {
+                      _rightTypeAhead.text=value.name;
+                      _submitSearch();
+                    }),
               ),
               Padding(
                 padding: EdgeInsets.all(1),
@@ -200,10 +191,10 @@ class _SearchState extends State<SearchRoutes> {
       _searching = true;
       _routes = null;
     });
-    print(_rightSearchController.text);
-    print(_leftSearchController.text);
+    print(_rightTypeAhead.text);
+    print(_leftTypeAhead.text);
     Model.sharedInstance
-        .searchRoutes(_rightSearchController.text, _leftSearchController.text,
+        .searchRoutes(_leftTypeAhead.text, _rightTypeAhead.text,
             _fromDate, _toDate)
         .then((result) {
       setState(() {
