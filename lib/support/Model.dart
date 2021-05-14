@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:first_from_zero/models/City.dart';
 import 'package:first_from_zero/models/RouteModel.dart';
 import 'Constants.dart';
 import 'package:first_from_zero/managers/RestManager.dart';
 import 'package:first_from_zero/models/AuthenticationData.dart';
+import 'package:http/http.dart' as http;
 
 enum LogInResult {
   logged,
@@ -87,6 +89,21 @@ class Model {
     }
   }
 */
+  Future<List<City>> getSuggestedCitiesByPattern(String pattern) async {
+    Map<String, String> params = Map();
+    params['pattern'] = pattern;
+    print(pattern);
+    try {
+      var resp = await _restManager.makeGetRequest(
+          Constants.SERVER_ADDRESS, Constants.CITY_AUTOFILL_ENDPOINT, params);
+      return List<City>.from(
+          json.decode(resp).map((i) => City.fromJson(i)).toList());
+    } catch (e) {
+      print("error  $e");
+      return null; // not the best solution
+    }
+  }
+
   Future<List<RouteModel>> searchRoutes(
       String depCity, String arrCity, DateTime from, DateTime to) async {
     Map<String, String> params = Map();
@@ -103,10 +120,8 @@ class Model {
     }
     try {
       return List<RouteModel>.from(json
-          .decode(await _restManager.makeGetRequest(
-              Constants.SERVER_ADDRESS,
-              Constants.REQUEST_GET_ROUTES + endpoint,
-              params))
+          .decode(await _restManager.makeGetRequest(Constants.SERVER_ADDRESS,
+              Constants.REQUEST_GET_ROUTES + endpoint, params))
           .map((i) => RouteModel.fromJson(i))
           .toList());
     } catch (e) {
@@ -114,8 +129,6 @@ class Model {
       return null; // not the best solution
     }
   }
-
-
 
 /*  Future<User> addUser(User user) async {
     try {

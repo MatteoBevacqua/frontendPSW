@@ -14,7 +14,6 @@ class RestManager {
     //TODO HTTPS
     Uri uri = Uri.http(serverAddress, servicePath, value);
     bool errorOccurred = false;
-
     try {
       var response;
       // setting content type
@@ -61,9 +60,9 @@ class RestManager {
           );
           break;
       }
-
       return response.body;
     } catch (err) {
+      print(err);
       errorOccurred = true;
     }
   }

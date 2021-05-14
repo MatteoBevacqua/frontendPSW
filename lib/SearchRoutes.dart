@@ -3,8 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:first_from_zero/models/RouteModel.dart';
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 import 'InputField.dart';
 
@@ -53,11 +53,29 @@ class _SearchState extends State<SearchRoutes> {
           child: Row(
             children: [
               Flexible(
-                child: InputField(
-                  labelText: "Departure City",
-                  controller: _rightSearchController,
-                  onSubmit: (value) {
-                    _submitSearch();
+                child:
+                TypeAheadField(
+                  textFieldConfiguration: TextFieldConfiguration(
+                      autofocus: false,
+                      style: DefaultTextStyle.of(context).style.copyWith(
+                          fontStyle: FontStyle.italic
+                      ),
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder()
+                      )
+                  ),
+                  suggestionsCallback: (pattern) async {
+                    return await Model.sharedInstance.getSuggestedCitiesByPattern(pattern);
+                  },
+                  itemBuilder: (context, suggestion) {
+                    return ListTile(
+                      leading: Icon(Icons.location_city_rounded),
+                      title: Text(suggestion.name),
+                      subtitle: Text(suggestion.country),
+                    );
+                  },
+                  onSuggestionSelected: (suggestion) {
+                   print(suggestion);
                   },
                 ),
               ),
