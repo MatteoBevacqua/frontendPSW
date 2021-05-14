@@ -4,7 +4,7 @@ class Constants {
   static final String APP_NAME = "Journey Planner";
 
   // addresses
-  static final String ADDRESS_STORE_SERVER = "localhost:8080";
+  static final String SERVER_ADDRESS = "localhost:8080";
   static final String ADDRESS_AUTHENTICATION_SERVER = "***";
 
   // authentication
@@ -18,6 +18,9 @@ class Constants {
 
   static final String REQUEST_ADD_USER = "/users";
   static final String CITIES = "/cities";
+  static final String REQUEST_GET_ROUTES = "/routes/search";
+  static final String ROUTE_BY_DEPARTURE = "/byDepartureCity";
+
 
   // responses
   static final String RESPONSE_ERROR_MAIL_USER_ALREADY_EXISTS = "ERROR_MAIL_USER_ALREADY_EXISTS";
