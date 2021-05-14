@@ -46,7 +46,7 @@ class _SearchState extends State<SearchRoutes> {
     return Column(
       children: [
         Padding(
-          padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+          padding: EdgeInsets.all(10),
           child: Row(
             children: [
               Flexible(

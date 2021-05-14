@@ -1,5 +1,6 @@
 import 'package:first_from_zero/SearchRoutes.dart';
 import 'package:flutter/material.dart';
+import 'package:first_from_zero/support/Constants.dart';
 
 class Layout extends StatefulWidget {
   final String title;
@@ -15,12 +16,18 @@ class _LayoutState extends State<Layout> {
     return DefaultTabController(
         length: 1,
         child: Scaffold(
-            appBar: AppBar(title: Text("Journey Planner")),
+            appBar: AppBar(
+              title: Text(Constants.APP_NAME),
+              bottom: TabBar(tabs: [
+                Tab(
+                    text: "Browse Routes",
+                    icon: Icon(Icons.train_outlined))
+
+              ]),
+
+            ),
             body: TabBarView(
               children: [SearchRoutes()],
             )));
   }
-
-
-  }
-
+}
