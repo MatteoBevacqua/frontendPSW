@@ -4,6 +4,7 @@ import 'package:first_from_zero/models/RouteModel.dart';
 import 'Constants.dart';
 import 'package:first_from_zero/managers/RestManager.dart';
 import 'package:first_from_zero/models/AuthenticationData.dart';
+
 enum LogInResult {
   logged,
   error_wrong_credentials,
@@ -51,8 +52,6 @@ class Model {
     }
   }
 
-
-
   Future<bool> logOut() async {
     try {
       Map<String, String> params = Map();
@@ -70,6 +69,7 @@ class Model {
       return false;
     }
   }
+
 /*
   Future<List<Product>> searchProduct(String name) async {
     Map<String, String> params = Map();
@@ -87,16 +87,26 @@ class Model {
     }
   }
 */
-
-  Future<List<RouteModel>> searchRoutesByDepartureCity(String city) async {
+  Future<List<RouteModel>> searchRoutes(
+      String depCity, String arrCity, DateTime from, DateTime to) async {
     Map<String, String> params = Map();
-    params["city"] = city;
+    String endpoint;
+    if (depCity != '' && arrCity != '') {
+      endpoint = Constants.ROUTE_BY_ALL;
+      params["departure"] = depCity;
+      params["arrival"] = arrCity;
+    } else {
+      params["city"] = arrCity == '' ? depCity : arrCity;
+      endpoint = arrCity == ''
+          ? Constants.ROUTE_BY_DEPARTURE
+          : Constants.ROUTE_BY_ARRIVAL;
+    }
     try {
       return List<RouteModel>.from(json
           .decode(await _restManager.makeGetRequest(
-          Constants.SERVER_ADDRESS,
-          Constants.REQUEST_GET_ROUTES + Constants.ROUTE_BY_DEPARTURE,
-          params))
+              Constants.SERVER_ADDRESS,
+              Constants.REQUEST_GET_ROUTES + endpoint,
+              params))
           .map((i) => RouteModel.fromJson(i))
           .toList());
     } catch (e) {
@@ -104,6 +114,8 @@ class Model {
       return null; // not the best solution
     }
   }
+
+
 
 /*  Future<User> addUser(User user) async {
     try {

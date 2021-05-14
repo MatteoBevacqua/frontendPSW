@@ -19,12 +19,8 @@ class _LayoutState extends State<Layout> {
             appBar: AppBar(
               title: Text(Constants.APP_NAME),
               bottom: TabBar(tabs: [
-                Tab(
-                    text: "Browse Routes",
-                    icon: Icon(Icons.train_outlined))
-
+                Tab(text: "Browse Routes", icon: Icon(Icons.train_outlined))
               ]),
-
             ),
             body: TabBarView(
               children: [SearchRoutes()],

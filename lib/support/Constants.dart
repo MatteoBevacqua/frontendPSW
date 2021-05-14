@@ -19,8 +19,9 @@ class Constants {
   static final String REQUEST_ADD_USER = "/users";
   static final String CITIES = "/cities";
   static final String REQUEST_GET_ROUTES = "/routes/search";
+  static final String ROUTE_BY_ARRIVAL = "/byArrivalCity";
   static final String ROUTE_BY_DEPARTURE = "/byDepartureCity";
-
+  static final String ROUTE_BY_ALL = "/byDepartureAndArrivalCity";
 
   // responses
   static final String RESPONSE_ERROR_MAIL_USER_ALREADY_EXISTS = "ERROR_MAIL_USER_ALREADY_EXISTS";

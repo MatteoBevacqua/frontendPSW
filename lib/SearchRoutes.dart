@@ -15,7 +15,6 @@ class SearchRoutes extends StatefulWidget {
 class _SearchState extends State<SearchRoutes> {
   TextEditingController _leftSearchController = TextEditingController(),
       _rightSearchController = TextEditingController();
-  String _from, _to;
   DateTime _fromDate, _toDate;
   bool _searching = false;
   List<RouteModel> _routes;
@@ -58,9 +57,7 @@ class _SearchState extends State<SearchRoutes> {
                   labelText: "Departure City",
                   controller: _rightSearchController,
                   onSubmit: (value) {
-                    if (_leftSearchController.text == '') {
-                      _searchRouteByDeparture(value);
-                    }
+                    _submitSearch();
                   },
                 ),
               ),
@@ -70,7 +67,9 @@ class _SearchState extends State<SearchRoutes> {
                   icon: Icon(CupertinoIcons.arrow_left_right_square_fill),
                   highlightColor: Colors.black,
                   onPressed: () {
-                    print("bruh3");
+                    var temp = _rightSearchController.text;
+                    _rightSearchController.text = _leftSearchController.text;
+                    _leftSearchController.text = temp;
                   },
                 ),
               ),
@@ -79,7 +78,7 @@ class _SearchState extends State<SearchRoutes> {
                   labelText: "Arrival City",
                   controller: _leftSearchController,
                   onSubmit: (value) {
-                    print(value);
+                    _submitSearch();
                   },
                 ),
               ),
@@ -91,7 +90,7 @@ class _SearchState extends State<SearchRoutes> {
                     icon: Icon(Icons.search_rounded),
                     highlightColor: Colors.black,
                     onPressed: () {
-                      print("bruh2");
+                      _submitSearch();
                     },
                   ),
                 ),
@@ -172,12 +171,23 @@ class _SearchState extends State<SearchRoutes> {
     );
   }
 
-  void _searchRouteByDeparture(String depCity) {
+  /*void _search(){
+    if(_leftSearchController.text == '' && _rightSearchController.text == '')
+      return;
+    if(_leftSearchController.text != '')
+  }*/
+
+  void _submitSearch() {
     setState(() {
       _searching = true;
       _routes = null;
     });
-    Model.sharedInstance.searchRoutesByDepartureCity(depCity).then((result) {
+    print(_rightSearchController.text);
+    print(_leftSearchController.text);
+    Model.sharedInstance
+        .searchRoutes(_rightSearchController.text, _leftSearchController.text,
+            _fromDate, _toDate)
+        .then((result) {
       setState(() {
         _searching = false;
         _routes = result;
@@ -223,7 +233,7 @@ class RouteCard extends StatelessWidget {
               ]),
               Column(children: [
                 Row(children: [Icon(Icons.arrow_forward)]),
-                Row()
+                Row(children: [Text(route.routeLength.toString() + " km")])
               ]),
               Column(children: [
                 Row(children: [
@@ -232,8 +242,8 @@ class RouteCard extends StatelessWidget {
                 ]),
                 Row(children: [
                   Text(DateFormat.yMMMMEEEEd()
-                      .format(route.arrivalTime)
-                      .toString() +
+                          .format(route.arrivalTime)
+                          .toString() +
                       "  " +
                       DateFormat.Hms().format(route.arrivalTime).toString())
                 ])
