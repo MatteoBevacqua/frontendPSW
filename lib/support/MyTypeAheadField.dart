@@ -40,13 +40,12 @@ class MyTypeAheadField<T> extends StatelessWidget {
                 color: Theme.of(context).primaryColor,
               ),
             ),
-            labelText: "Departure City",
+            labelText: labelText,
             labelStyle: TextStyle(
               color: Theme.of(context).primaryColor,
             ),
           )),
       suggestionsCallback: onSuggestionSelected,
-
       itemBuilder: (context, suggestion) {
         return ListTile(
           leading: Icon(Icons.location_city_rounded),

@@ -17,9 +17,17 @@ class SearchRoutes extends StatefulWidget {
 
 class _SearchState extends State<SearchRoutes> {
   DateTime _fromDate, _toDate;
+  RouteModel _selected;
   bool _searching = false;
   List<RouteModel> _routes;
-  TextEditingController _leftTypeAhead = TextEditingController(),_rightTypeAhead = TextEditingController();
+  TextEditingController _leftTypeAhead = TextEditingController(),
+      _rightTypeAhead = TextEditingController();
+
+  void setSelected(RouteModel model) {
+    this._selected = model;
+    print("selected is " + _selected.toJson().toString());
+  }
+
   void _selectDate(BuildContext buildContext, bool first) async {
     final DateTime picked = await showDatePicker(
         context: buildContext,
@@ -62,7 +70,8 @@ class _SearchState extends State<SearchRoutes> {
                     },
                     textEditingController: _leftTypeAhead,
                     onSubmit: (value) {
-                      _leftTypeAhead.text=value.name;
+                      print(value);
+                      _leftTypeAhead.text = value.name;
                       _submitSearch();
                     }),
               ),
@@ -75,6 +84,7 @@ class _SearchState extends State<SearchRoutes> {
                     var temp = _rightTypeAhead.text;
                     _rightTypeAhead.text = _leftTypeAhead.text;
                     _leftTypeAhead.text = temp;
+                    _submitSearch();
                   },
                 ),
               ),
@@ -87,7 +97,7 @@ class _SearchState extends State<SearchRoutes> {
                     },
                     textEditingController: _rightTypeAhead,
                     onSubmit: (value) {
-                      _rightTypeAhead.text=value.name;
+                      _rightTypeAhead.text = value.name;
                       _submitSearch();
                     }),
               ),
@@ -173,6 +183,7 @@ class _SearchState extends State<SearchRoutes> {
           itemBuilder: (context, index) {
             return RouteCard(
               route: _routes[index],
+              caller: this,
             );
           },
         ),
@@ -180,22 +191,14 @@ class _SearchState extends State<SearchRoutes> {
     );
   }
 
-  /*void _search(){
-    if(_leftSearchController.text == '' && _rightSearchController.text == '')
-      return;
-    if(_leftSearchController.text != '')
-  }*/
-
   void _submitSearch() {
     setState(() {
       _searching = true;
       _routes = null;
     });
-    print(_rightTypeAhead.text);
-    print(_leftTypeAhead.text);
     Model.sharedInstance
-        .searchRoutes(_leftTypeAhead.text, _rightTypeAhead.text,
-            _fromDate, _toDate)
+        .searchRoutes(
+            _leftTypeAhead.text, _rightTypeAhead.text, _fromDate, _toDate)
         .then((result) {
       setState(() {
         _searching = false;
@@ -207,21 +210,22 @@ class _SearchState extends State<SearchRoutes> {
 
 class RouteCard extends StatelessWidget {
   final RouteModel route;
+  final _SearchState caller;
 
-  RouteCard({Key key, this.route}) : super(key: key);
+  RouteCard({Key key, this.route, this.caller}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return new InkWell(
-      onTap: () {
-        print("void");
-      },
-      hoverColor: Colors.black,
-      highlightColor: Colors.black,
-      child: new Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0),
-        ),
+    return new Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20.0),
+      ),
+      child: new InkWell(
+        hoverColor: Colors.redAccent,
+        highlightColor: Colors.red,
+        onTap: () {
+          caller.setSelected(route);
+        },
         child: Padding(
           padding: EdgeInsets.all(15),
           child: Row(
