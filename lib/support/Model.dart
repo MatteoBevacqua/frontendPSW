@@ -112,7 +112,7 @@ class Model {
       endpoint = Constants.ROUTE_BY_ALL;
       params["departure"] = depCity;
       params["arrival"] = arrCity;
-      if (from != null) params['startDate'] = from.toIso8601String();
+    //  if (from != null) params['startDate'] = from.toIso8601String();
       if (to != null) params['endDate'] = to.toIso8601String();
     } else {
       params["city"] = arrCity == '' ? depCity : arrCity;

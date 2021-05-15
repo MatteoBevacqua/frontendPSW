@@ -7,16 +7,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:first_from_zero/models/RouteModel.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
 
-import 'InputField.dart';
 
 class SearchRoutes extends StatefulWidget {
   _SearchState createState() => _SearchState();
 }
 
 class _SearchState extends State<SearchRoutes> {
-  DateTime _fromDate, _toDate;
+  DateTime _fromDate = DateTime.now(),
+      _toDate = DateTime.now().add(Duration(days: 365));
   RouteModel _selected;
   bool _searching = false;
   List<RouteModel> _routes;
@@ -34,6 +33,7 @@ class _SearchState extends State<SearchRoutes> {
         initialDate: DateTime.now(),
         firstDate: DateTime.now(),
         lastDate: DateTime.now().add(Duration(days: 365)));
+    print(first);
     if (picked != null)
       setState(() {
         if (first)
@@ -41,7 +41,8 @@ class _SearchState extends State<SearchRoutes> {
         else
           _toDate = picked;
       });
-    print(_fromDate.toString() + " " + _toDate.toString());
+    _submitSearch();
+    print(_fromDate.toString() + " " + _toDate.toString() + " ??? ");
   }
 
   @override
@@ -124,39 +125,51 @@ class _SearchState extends State<SearchRoutes> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Flexible(
-                child: Padding(
-                  padding: EdgeInsets.all(15),
-                  child: OutlinedButton.icon(
-                      onPressed: () => _selectDate(this.context, true),
-                      label: Text('Press here to select a starting date'),
-                      icon: Icon(Icons.date_range),
-                      style: OutlinedButton.styleFrom(
-                        primary: Colors.black,
-                        backgroundColor: Colors.white,
-                        minimumSize: Size(100, 50),
-                        shape: const RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(15))),
-                        elevation: 10,
-                      )),
+                child: Column(
+                  children: [
+                    Text("Currently selected date : " +
+                        DateFormat.yMMMMEEEEd().format(_fromDate).toString()),
+                    Padding(
+                      padding: EdgeInsets.all(15),
+                      child: OutlinedButton.icon(
+                          onPressed: () => _selectDate(this.context, true),
+                          label: Text('Press here to select a starting date'),
+                          icon: Icon(Icons.date_range),
+                          style: OutlinedButton.styleFrom(
+                            primary: Colors.black,
+                            backgroundColor: Colors.white,
+                            minimumSize: Size(100, 50),
+                            shape: const RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(15))),
+                            elevation: 10,
+                          )),
+                    ),
+                  ],
                 ),
               ),
               Flexible(
-                child: Padding(
-                  padding: EdgeInsets.all(15),
-                  child: OutlinedButton.icon(
-                      onPressed: () => _selectDate(this.context, false),
-                      label: Text('Press here to select an ending date'),
-                      icon: Icon(Icons.date_range),
-                      style: OutlinedButton.styleFrom(
-                        primary: Colors.black,
-                        backgroundColor: Colors.white,
-                        minimumSize: Size(100, 50),
-                        shape: const RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(15))),
-                        elevation: 10,
-                      )),
+                child: Column(
+                  children: [
+                    Text("Currently selected date : " +
+                        DateFormat.yMMMMEEEEd().format(_toDate).toString()),
+                    Padding(
+                      padding: EdgeInsets.all(15),
+                      child: OutlinedButton.icon(
+                          onPressed: () => _selectDate(this.context, false),
+                          label: Text('Press here to select an ending date'),
+                          icon: Icon(Icons.date_range),
+                          style: OutlinedButton.styleFrom(
+                            primary: Colors.black,
+                            backgroundColor: Colors.white,
+                            minimumSize: Size(100, 50),
+                            shape: const RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(15))),
+                            elevation: 10,
+                          )),
+                    ),
+                  ],
                 ),
               ),
             ],

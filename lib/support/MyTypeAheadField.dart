@@ -17,7 +17,7 @@ class MyTypeAheadField<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     return TypeAheadField(
       textFieldConfiguration: TextFieldConfiguration(
-          autofocus: autofocus,
+          autofocus: false,
           controller: textEditingController,
           style: DefaultTextStyle.of(context).style,
           decoration: InputDecoration(
