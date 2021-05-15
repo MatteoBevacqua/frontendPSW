@@ -108,12 +108,12 @@ class Model {
       String depCity, String arrCity, DateTime from, DateTime to) async {
     Map<String, String> params = Map();
     String endpoint;
+    if (from != null) params['startDate'] = from.toIso8601String();
+    if (to != null) params['endDate'] = to.toIso8601String();
     if (depCity != '' && arrCity != '') {
       endpoint = Constants.ROUTE_BY_ALL;
       params["departure"] = depCity;
       params["arrival"] = arrCity;
-    //  if (from != null) params['startDate'] = from.toIso8601String();
-      if (to != null) params['endDate'] = to.toIso8601String();
     } else {
       params["city"] = arrCity == '' ? depCity : arrCity;
       endpoint = arrCity == ''

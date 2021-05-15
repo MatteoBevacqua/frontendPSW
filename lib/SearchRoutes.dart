@@ -10,7 +10,8 @@ class SearchRoutes extends StatefulWidget {
   _SearchState createState() => _SearchState();
 }
 
-class _SearchState extends State<SearchRoutes> {
+class _SearchState extends State<SearchRoutes> with
+    AutomaticKeepAliveClientMixin<SearchRoutes> {
   DateTime _fromDate = DateTime.now(),
       _toDate = DateTime.now().add(Duration(days: 365));
   RouteModel _selected;
@@ -129,13 +130,18 @@ class _SearchState extends State<SearchRoutes> {
               Flexible(
                 child: Column(
                   children: [
-                    Text("Currently selected date : " +
-                        DateFormat.yMMMMEEEEd().format(_fromDate).toString()),
+                    Text(
+                        "From : " +
+                            DateFormat.yMMMMEEEEd()
+                                .format(_fromDate)
+                                .toString(),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 17)),
                     Padding(
                       padding: EdgeInsets.all(15),
                       child: OutlinedButton.icon(
                           onPressed: () => _selectDate(this.context, true),
-                          label: Text('Press here to select a starting date'),
+                          label: Text('Modify the starting date'),
                           icon: Icon(Icons.date_range),
                           style: OutlinedButton.styleFrom(
                             primary: Colors.black,
@@ -153,13 +159,18 @@ class _SearchState extends State<SearchRoutes> {
               Flexible(
                 child: Column(
                   children: [
-                    Text("Currently selected date : " +
-                        DateFormat.yMMMMEEEEd().format(_toDate).toString()),
+                    Text(
+                        "To : " +
+                            DateFormat.yMMMMEEEEd()
+                                .format(_fromDate)
+                                .toString(),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 17)),
                     Padding(
                       padding: EdgeInsets.all(15),
                       child: OutlinedButton.icon(
                           onPressed: () => _selectDate(this.context, false),
-                          label: Text('Press here to select an ending date'),
+                          label: Text('Modify the ending date'),
                           icon: Icon(Icons.date_range),
                           style: OutlinedButton.styleFrom(
                             primary: Colors.black,
@@ -222,6 +233,9 @@ class _SearchState extends State<SearchRoutes> {
       });
     });
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class RouteCard extends StatelessWidget {
