@@ -41,6 +41,7 @@ class _SearchState extends State<SearchRoutes> {
         else
           _toDate = picked;
       });
+    print(_fromDate.toString() + " " + _toDate.toString());
   }
 
   @override
@@ -126,7 +127,7 @@ class _SearchState extends State<SearchRoutes> {
                 child: Padding(
                   padding: EdgeInsets.all(15),
                   child: OutlinedButton.icon(
-                      onPressed: () => _selectDate(this.context, false),
+                      onPressed: () => _selectDate(this.context, true),
                       label: Text('Press here to select a starting date'),
                       icon: Icon(Icons.date_range),
                       style: OutlinedButton.styleFrom(
@@ -144,7 +145,7 @@ class _SearchState extends State<SearchRoutes> {
                 child: Padding(
                   padding: EdgeInsets.all(15),
                   child: OutlinedButton.icon(
-                      onPressed: () => _selectDate(this.context, true),
+                      onPressed: () => _selectDate(this.context, false),
                       label: Text('Press here to select an ending date'),
                       icon: Icon(Icons.date_range),
                       style: OutlinedButton.styleFrom(
