@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:first_from_zero/support/Model.dart';
 import 'package:first_from_zero/support/MyTypeAheadField.dart';
 import 'package:flutter/cupertino.dart';
@@ -7,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:first_from_zero/models/RouteModel.dart';
 import 'package:intl/intl.dart';
-
 
 class SearchRoutes extends StatefulWidget {
   _SearchState createState() => _SearchState();
@@ -47,10 +44,15 @@ class _SearchState extends State<SearchRoutes> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          children: [top(), bottom()],
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        body: Center(
+          child: Column(
+            children: [top(), bottom()],
+          ),
         ),
       ),
     );
