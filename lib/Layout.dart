@@ -8,24 +8,37 @@ class Layout extends StatefulWidget {
 
   Layout({Key key, this.title}) : super(key: key);
 
-  _LayoutState createState() => _LayoutState();
+  LayoutState createState() => LayoutState();
 }
 
-class _LayoutState extends State<Layout> {
+class LayoutState extends State<Layout> {
+  TabController _controller;
+  void goToBooking() {
+      _controller.animateTo(1);
+  }
+
+  int index = 0;
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
         length: 2,
-        child: Scaffold(
-            appBar: AppBar(
-              title: Text(Constants.APP_NAME),
-              bottom: TabBar(tabs: [
-                Tab(text: "Browse Routes", icon: Icon(Icons.train_outlined)),
-                Tab(text : "Book a Route",icon:Icon(Icons.book_online))
-              ]),
-            ),
-            body: TabBarView(
-              children: [SearchRoutes(),BookRoute()],
-            )));
+        initialIndex: index,
+        child: Builder(builder: (BuildContext context) {
+          _controller = DefaultTabController.of(context);
+          return Scaffold(
+              appBar: AppBar(
+                title: Text(Constants.APP_NAME),
+                bottom: TabBar(tabs: [
+                  Tab(text: "Browse Routes", icon: Icon(Icons.train_outlined)),
+                  Tab(
+                      text: "Book your seats",
+                      icon: Icon(Icons.shopping_cart_outlined))
+                ]),
+              ),
+              body: TabBarView(
+                children: [SearchRoutes(parentState: this), BookRoute()],
+              ));
+        }));
   }
 }

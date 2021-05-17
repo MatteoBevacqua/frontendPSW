@@ -1,3 +1,4 @@
+import 'package:first_from_zero/support/Global.dart';
 import 'package:first_from_zero/support/Model.dart';
 import 'package:first_from_zero/support/MyTypeAheadField.dart';
 import 'package:flutter/cupertino.dart';
@@ -6,12 +7,23 @@ import 'package:flutter/widgets.dart';
 import 'package:first_from_zero/models/RouteModel.dart';
 import 'package:intl/intl.dart';
 
+import 'BookRoute.dart';
+import 'Layout.dart';
+
 class SearchRoutes extends StatefulWidget {
-  _SearchState createState() => _SearchState();
+  final LayoutState parentState;
+
+  SearchRoutes({this.parentState});
+
+  _SearchState createState() => _SearchState(parent: parentState);
 }
 
-class _SearchState extends State<SearchRoutes> with
-    AutomaticKeepAliveClientMixin<SearchRoutes> {
+class _SearchState extends State<SearchRoutes>
+    with AutomaticKeepAliveClientMixin<SearchRoutes> {
+  final LayoutState parent;
+
+  _SearchState({this.parent});
+
   DateTime _fromDate = DateTime.now(),
       _toDate = DateTime.now().add(Duration(days: 365));
   RouteModel _selected;
@@ -161,9 +173,7 @@ class _SearchState extends State<SearchRoutes> with
                   children: [
                     Text(
                         "To : " +
-                            DateFormat.yMMMMEEEEd()
-                                .format(_fromDate)
-                                .toString(),
+                            DateFormat.yMMMMEEEEd().format(_toDate).toString(),
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 17)),
                     Padding(
@@ -202,6 +212,13 @@ class _SearchState extends State<SearchRoutes> with
         : CircularProgressIndicator();
   }
 
+  void setSelectedInCard(RouteModel route) {
+    print("called");
+    this.setSelected(route);
+    GlobalData.instance.currentlySelected = route;
+    this.parent.goToBooking();
+  }
+
   Widget showResults() {
     return Expanded(
       child: Container(
@@ -211,6 +228,7 @@ class _SearchState extends State<SearchRoutes> with
             return RouteCard(
               route: _routes[index],
               caller: this,
+              onTap: () => setSelectedInCard(_routes[index]),
             );
           },
         ),
@@ -241,8 +259,9 @@ class _SearchState extends State<SearchRoutes> with
 class RouteCard extends StatelessWidget {
   final RouteModel route;
   final _SearchState caller;
+  final Function onTap;
 
-  RouteCard({Key key, this.route, this.caller}) : super(key: key);
+  RouteCard({Key key, this.route, this.caller, this.onTap}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -253,9 +272,7 @@ class RouteCard extends StatelessWidget {
       child: new InkWell(
         hoverColor: Colors.redAccent,
         highlightColor: Colors.red,
-        onTap: () {
-          caller.setSelected(route);
-        },
+        onTap: onTap,
         child: Padding(
           padding: EdgeInsets.all(15),
           child: Row(
@@ -271,7 +288,7 @@ class RouteCard extends StatelessWidget {
                           .format(route.departureTime)
                           .toString() +
                       "  " +
-                      DateFormat.Hms().format(route.departureTime).toString())
+                      DateFormat.Hm().format(route.departureTime).toString())
                 ])
               ]),
               Column(children: [
@@ -288,7 +305,7 @@ class RouteCard extends StatelessWidget {
                           .format(route.arrivalTime)
                           .toString() +
                       "  " +
-                      DateFormat.Hms().format(route.arrivalTime).toString())
+                      DateFormat.Hm().format(route.arrivalTime).toString())
                 ])
               ])
             ],
