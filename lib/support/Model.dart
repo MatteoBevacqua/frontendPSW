@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:first_from_zero/models/City.dart';
 import 'package:first_from_zero/models/RouteModel.dart';
+import 'package:first_from_zero/models/SeatModel.dart';
 import 'Constants.dart';
 import 'package:first_from_zero/managers/RestManager.dart';
 import 'package:first_from_zero/models/AuthenticationData.dart';
@@ -126,6 +127,21 @@ class Model {
           .decode(await _restManager.makeGetRequest(Constants.SERVER_ADDRESS,
               Constants.REQUEST_GET_ROUTES + endpoint, params))
           .map((i) => RouteModel.fromJson(i))
+          .toList());
+    } catch (e) {
+      print("error + $e");
+      return null; // not the best solution
+    }
+  }
+
+  Future<List<SeatModel>> getAvailableSeatsOnRoute(RouteModel m) async {
+    Map<String, String> params = Map();
+    params['route_id'] = m.id.toString();
+    try {
+      return List<SeatModel>.from(json
+          .decode(await _restManager.makeGetRequest(
+              Constants.SERVER_ADDRESS, Constants.GET_SEATS, params))
+          .map((i) => SeatModel.fromJson(i))
           .toList());
     } catch (e) {
       print("error + $e");

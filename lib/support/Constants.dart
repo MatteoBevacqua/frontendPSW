@@ -14,6 +14,7 @@ class Constants {
   static final String REQUEST_LOGIN = "/auth/realms/" + REALM + "/protocol/openid-connect/token";
   static final String REQUEST_LOGOUT = "/auth/realms/" + REALM + "/protocol/openid-connect/logout";
   static final String CITY_AUTOFILL_ENDPOINT = "/cities/search/like";
+  static final String GET_SEATS = "/seats/availableByRoute";
   // requests
 
   static final String REQUEST_ADD_USER = "/users";
