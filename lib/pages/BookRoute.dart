@@ -1,5 +1,5 @@
-import 'package:first_from_zero/CircularIconButton.dart';
-import 'package:first_from_zero/SearchRoutes.dart';
+import 'package:first_from_zero/myWidgets/CircularIconButton.dart';
+import 'package:first_from_zero/pages/SearchRoutes.dart';
 import 'package:first_from_zero/models/RouteModel.dart';
 import 'package:first_from_zero/models/SeatModel.dart';
 import 'package:first_from_zero/support/Global.dart';
@@ -18,11 +18,12 @@ class _BookingState extends State<BookRoute> {
 
   _BookingState() {
     selected = GlobalData.instance.currentlySelected;
-    Model().getAvailableSeatsOnRoute(selected).then((result) {
-      setState(() {
-        seats = result;
+    if (selected != null)
+      Model().getAvailableSeatsOnRoute(selected).then((result) {
+        setState(() {
+          seats = result;
+        });
       });
-    });
   }
 
   @override
@@ -31,7 +32,8 @@ class _BookingState extends State<BookRoute> {
   }
 
   Widget top() {
-    return selected == null ? Text("Nothing to show") : aight();
+    return selected == null ? Center(child :  Text("Select a route first",
+    style: TextStyle(fontSize: 20),)) : aight();
   }
 
   Widget aight() {
@@ -74,7 +76,6 @@ class _SeatState extends State<TrainSeat> {
         child: CircularIconButton(
           onPressed: () => {print(seatModel.toJson().toString())},
           icon: Icons.event_seat_sharp,
-
         ));
   }
 }

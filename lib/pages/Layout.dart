@@ -1,6 +1,6 @@
-import 'package:first_from_zero/BookRoute.dart';
-import 'package:first_from_zero/SearchRoutes.dart';
-import 'package:first_from_zero/models/UserPage.dart';
+import 'package:first_from_zero/pages/BookRoute.dart';
+import 'package:first_from_zero/pages/SearchRoutes.dart';
+import 'package:first_from_zero/pages/UserPage.dart';
 
 import 'package:flutter/material.dart';
 import 'package:first_from_zero/support/Constants.dart';

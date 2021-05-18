@@ -1,6 +1,6 @@
 import 'package:first_from_zero/support/Global.dart';
 import 'package:first_from_zero/support/Model.dart';
-import 'package:first_from_zero/support/MyTypeAheadField.dart';
+import 'package:first_from_zero/myWidgets/MyTypeAheadField.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
