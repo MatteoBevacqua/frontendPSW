@@ -1,4 +1,4 @@
-import 'package:first_from_zero/Layout.dart';
+import 'package:first_from_zero/CircularIconButton.dart';
 import 'package:first_from_zero/SearchRoutes.dart';
 import 'package:first_from_zero/models/RouteModel.dart';
 import 'package:first_from_zero/models/SeatModel.dart';
@@ -18,9 +18,7 @@ class _BookingState extends State<BookRoute> {
 
   _BookingState() {
     selected = GlobalData.instance.currentlySelected;
-    Model()
-        .getAvailableSeatsOnRoute(selected)
-        .then((result){
+    Model().getAvailableSeatsOnRoute(selected).then((result) {
       setState(() {
         seats = result;
       });
@@ -45,45 +43,38 @@ class _BookingState extends State<BookRoute> {
   }
 
   Widget getSeats() {
-    return Expanded(
-      child: Container(
+    return Flexible(
         child: ListView.builder(
-          itemCount: seats.length,
-          itemBuilder: (context, index) {
-            return Text(seats[index].toString());
-          },
-        ),
-      ),
-    );
-  }
-  Widget getSeats2() {
-    return Expanded(
-      child: Container(
-        child: ListView.builder(
-          itemCount: seats.length,
-          itemBuilder: (context, index) {
-            return Text(seats[index].toString());
-          },
-        ),
-      ),
-    );
+      itemCount: seats.length,
+      itemBuilder: (context, index) {
+        return TrainSeat(seat: seats[index]);
+      },
+    ));
   }
 }
 
 class TrainSeat extends StatefulWidget {
-  _SeatState createState() => _SeatState();
+  final SeatModel seat;
+
+  TrainSeat({this.seat});
+
+  _SeatState createState() => _SeatState(seatModel: seat);
 }
 
 class _SeatState extends State<TrainSeat> {
   bool selected;
+  final SeatModel seatModel;
+
+  _SeatState({this.seatModel});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
         padding: EdgeInsets.all(10),
-        child: InkWell(
-            hoverColor: Colors.black12,
-            highlightColor: Colors.black,
-            child: Icon(Icons.event_seat_rounded)));
+        child: CircularIconButton(
+          onPressed: () => {print(seatModel.toJson().toString())},
+          icon: Icons.event_seat_sharp,
+
+        ));
   }
 }

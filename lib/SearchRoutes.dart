@@ -43,7 +43,7 @@ class _SearchState extends State<SearchRoutes>
         initialDate: DateTime.now(),
         firstDate: DateTime.now(),
         lastDate: DateTime.now().add(Duration(days: 365)));
-    print(first);
+    print(picked.toIso8601String());
     if (picked != null)
       setState(() {
         if (first)

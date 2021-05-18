@@ -18,6 +18,7 @@ class SeatModel {
   FacingDirection direction;
 
   int trainId;
+  bool isBooked;
 
   SeatModel(
       {this.id,
@@ -25,17 +26,19 @@ class SeatModel {
       this.seatClass,
       this.adultPrice,
       this.childrenPrice,
-      this.direction});
+      this.direction,
+      this.isBooked});
 
   factory SeatModel.fromJson(Map<String, dynamic> json) {
     return SeatModel(
-      id: json['id'],
-      wagonNumber: json['wagonNumber'],
-      seatClass: EnumToString.fromString(SeatClass.values, json['seatClass']),
-      adultPrice: json['adultPrice'],
-      childrenPrice: json['adultPrice'],
-      direction: EnumToString.fromString(FacingDirection.values, json['direction']),
-    );
+        id: json['id'],
+        wagonNumber: json['wagonNumber'],
+        seatClass: EnumToString.fromString(SeatClass.values, json['seatClass']),
+        adultPrice: json['adultPrice'],
+        childrenPrice: json['adultPrice'],
+        direction:
+            EnumToString.fromString(FacingDirection.values, json['direction']),
+        isBooked: json['isBooked'].toString().toLowerCase() == 'true');
   }
 
   Map<String, dynamic> toJson() => {
@@ -45,14 +48,11 @@ class SeatModel {
         'adultPrice': adultPrice,
         'childrenPrice': childrenPrice,
         'direction': direction,
+        'isBooked': isBooked
       };
 
   @override
   String toString() {
-    return id.toString() +
-        " " +
-        wagonNumber.toString() +
-        " " +
-        seatClass.toString();
+    return this.toJson().toString();
   }
 }

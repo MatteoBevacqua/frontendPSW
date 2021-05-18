@@ -8,8 +8,8 @@ enum TypeHeader { json, urlencoded }
 class RestManager {
   String token;
 
-  Future<String> _makeRequest(
-      String serverAddress, String servicePath, String method, TypeHeader type,
+  Future<String> _makeRequest(String serverAddress, String servicePath,
+      String method, TypeHeader type,
       {Map<String, String> value, dynamic body}) async {
     //TODO HTTPS
     Uri uri = Uri.http(serverAddress, servicePath, value);
@@ -60,6 +60,8 @@ class RestManager {
           );
           break;
       }
+
+      print(formattedBody);
       return response.body;
     } catch (err) {
       print(err);
@@ -67,9 +69,11 @@ class RestManager {
     }
   }
 
-  Future<String> makePostRequest(
-      String serverAddress, String servicePath, dynamic value,
+
+  Future<String> makePostRequest(String serverAddress, String servicePath,
+      dynamic value,
       {TypeHeader type = TypeHeader.json}) async {
+    print(serverAddress + " " + servicePath);
     return _makeRequest(serverAddress, servicePath, "post", type, body: value);
   }
 

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:first_from_zero/models/City.dart';
+import 'package:first_from_zero/models/Passenger.dart';
 import 'package:first_from_zero/models/RouteModel.dart';
 import 'package:first_from_zero/models/SeatModel.dart';
 import 'Constants.dart';
@@ -26,12 +27,10 @@ class Model {
       Map<String, String> params = Map();
       params["grant_type"] = "password";
       params["client_id"] = Constants.CLIENT_ID;
-      params["client_secret"] = Constants.CLIENT_SECRET;
       params["username"] = email;
       params["password"] = password;
       String result = await _restManager.makePostRequest(
-          Constants.ADDRESS_AUTHENTICATION_SERVER,
-          Constants.REQUEST_LOGIN,
+          Constants.ADDRESS_AUTHENTICATION_SERVER,Constants.REQUEST_LOGIN,
           params,
           type: TypeHeader.urlencoded);
       _authenticationData = AuthenticationData.fromJson(jsonDecode(result));
@@ -51,6 +50,7 @@ class Model {
       });
       return LogInResult.logged;
     } catch (e) {
+      print(e);
       return LogInResult.error_unknown;
     }
   }
@@ -149,15 +149,15 @@ class Model {
     }
   }
 
-/*  Future<User> addUser(User user) async {
+  Future<Passenger> addUser(Passenger user) async {
     try {
-      String rawResult = await _restManager.makePostRequest(
-          Constants.ADDRESS_STORE_SERVER, Constants.REQUEST_ADD_USER, user);
-      if (rawResult
-          .contains(Constants.RESPONSE_ERROR_MAIL_USER_ALREADY_EXISTS)) {
+      var rawResult = await _restManager.makePostRequest(
+          Constants.SERVER_ADDRESS, Constants.REQUEST_ADD_PASSENGER, user);
+      print(rawResult);
+      if (rawResult == null) {
         return null; // not the best solution
       } else {
-        return User.fromJson(jsonDecode(rawResult));
+        return Passenger.fromJson(jsonDecode(rawResult));
       }
     } catch (e) {
       return null; // not the best solution
@@ -168,14 +168,13 @@ class Model {
     try {
       return List<City>.from(json
           .decode(await _restManager.makeGetRequest(
-              Constants.ADDRESS_STORE_SERVER, Constants.CITIES + "/all",null))
+              Constants.SERVER_ADDRESS, Constants.CITIES + "/all", null))
           .map((i) => City.fromJson(i))
           .toList());
     } catch (e) {
       return null; // not the best solution
     }
   }
-  */
 
   Future<bool> _refreshToken() async {
     try {
@@ -189,6 +188,7 @@ class Model {
           Constants.REQUEST_LOGIN,
           params,
           type: TypeHeader.urlencoded);
+      print(result);
       _authenticationData = AuthenticationData.fromJson(jsonDecode(result));
       if (_authenticationData.hasError()) {
         return false;

@@ -5,7 +5,7 @@ class Constants {
 
   // addresses
   static final String SERVER_ADDRESS = "localhost:8080";
-  static final String ADDRESS_AUTHENTICATION_SERVER = "***";
+  static final String ADDRESS_AUTHENTICATION_SERVER = "localhost:8180";
 
   // authentication
   static final String REALM = "journey_planner";
@@ -14,10 +14,10 @@ class Constants {
   static final String REQUEST_LOGIN = "/auth/realms/" + REALM + "/protocol/openid-connect/token";
   static final String REQUEST_LOGOUT = "/auth/realms/" + REALM + "/protocol/openid-connect/logout";
   static final String CITY_AUTOFILL_ENDPOINT = "/cities/search/like";
-  static final String GET_SEATS = "/seats/availableByRoute";
+  static final String GET_SEATS = "/seats/byRouteWithSelectionStatus";
   // requests
 
-  static final String REQUEST_ADD_USER = "/users";
+  static final String REQUEST_ADD_PASSENGER = "/users";
   static final String CITIES = "/cities";
   static final String REQUEST_GET_ROUTES = "/routes/search";
   static final String ROUTE_BY_ARRIVAL = "/byArrivalCity";

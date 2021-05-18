@@ -20,8 +20,5 @@ class AuthenticationData {
     return error != null;
   }
 
-  String toString(){
-    return accessToken + "\n " + refreshToken;
-  }
 
 }

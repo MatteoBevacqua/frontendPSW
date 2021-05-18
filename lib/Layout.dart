@@ -1,5 +1,7 @@
 import 'package:first_from_zero/BookRoute.dart';
 import 'package:first_from_zero/SearchRoutes.dart';
+import 'package:first_from_zero/models/UserPage.dart';
+
 import 'package:flutter/material.dart';
 import 'package:first_from_zero/support/Constants.dart';
 
@@ -22,7 +24,7 @@ class LayoutState extends State<Layout> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-        length: 2,
+        length: 3,
         initialIndex: index,
         child: Builder(builder: (BuildContext context) {
           _controller = DefaultTabController.of(context);
@@ -33,11 +35,12 @@ class LayoutState extends State<Layout> {
                   Tab(text: "Browse Routes", icon: Icon(Icons.train_outlined)),
                   Tab(
                       text: "Book your seats",
-                      icon: Icon(Icons.shopping_cart_outlined))
+                      icon: Icon(Icons.shopping_cart_outlined)),
+                  Tab(text:"Login",icon: Icon(Icons.supervised_user_circle),)
                 ]),
               ),
               body: TabBarView(
-                children: [SearchRoutes(parentState: this), BookRoute()],
+                children: [SearchRoutes(parentState: this), BookRoute(),UserPage()],
               ));
         }));
   }
