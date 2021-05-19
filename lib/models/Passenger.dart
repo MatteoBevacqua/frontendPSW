@@ -1,5 +1,5 @@
 class Passenger {
-  int id;
+  String id;
   String firstName;
   String lastName;
   String username;

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:first_from_zero/models/City.dart';
 import 'package:first_from_zero/models/Passenger.dart';
+import 'package:first_from_zero/models/Reservation.dart';
 import 'package:first_from_zero/models/RouteModel.dart';
 import 'package:first_from_zero/models/SeatModel.dart';
 import 'Constants.dart';
@@ -30,10 +31,12 @@ class Model {
       params["username"] = email;
       params["password"] = password;
       String result = await _restManager.makePostRequest(
-          Constants.ADDRESS_AUTHENTICATION_SERVER,Constants.REQUEST_LOGIN,
+          Constants.ADDRESS_AUTHENTICATION_SERVER,
+          Constants.REQUEST_LOGIN,
           params,
           type: TypeHeader.urlencoded);
       _authenticationData = AuthenticationData.fromJson(jsonDecode(result));
+      print(_authenticationData);
       if (_authenticationData.hasError()) {
         if (_authenticationData.error == "Invalid user credentials") {
           return LogInResult.error_wrong_credentials;
@@ -52,6 +55,19 @@ class Model {
     } catch (e) {
       print(e);
       return LogInResult.error_unknown;
+    }
+  }
+
+  Future<List<Reservation>> getReservations(Passenger p) async {
+    try {
+      return List<Reservation>.from(json
+          .decode(await _restManager.makeGetRequest(
+              Constants.SERVER_ADDRESS, Constants.GET_RESERVATIONS, null))
+          .map((i) => Reservation.fromJson(i))
+          .toList());
+    } catch (e) {
+      print(e);
+      return null;
     }
   }
 

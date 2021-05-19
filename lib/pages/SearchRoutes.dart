@@ -1,6 +1,7 @@
 import 'package:first_from_zero/support/Global.dart';
 import 'package:first_from_zero/support/Model.dart';
 import 'package:first_from_zero/myWidgets/MyTypeAheadField.dart';
+import 'package:first_from_zero/support/Utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -284,11 +285,7 @@ class RouteCard extends StatelessWidget {
                       style: TextStyle(fontSize: 25))
                 ]),
                 Row(children: [
-                  Text(DateFormat.yMMMMEEEEd()
-                          .format(route.departureTime)
-                          .toString() +
-                      "  " +
-                      DateFormat.Hm().format(route.departureTime).toString())
+                  Text(Utils.formatDate(route.departureTime))
                 ])
               ]),
               Column(children: [
@@ -301,11 +298,7 @@ class RouteCard extends StatelessWidget {
                       style: TextStyle(fontSize: 25))
                 ]),
                 Row(children: [
-                  Text(DateFormat.yMMMMEEEEd()
-                          .format(route.arrivalTime)
-                          .toString() +
-                      "  " +
-                      DateFormat.Hm().format(route.arrivalTime).toString())
+                  Text(Utils.formatDate(route.arrivalTime))
                 ])
               ])
             ],

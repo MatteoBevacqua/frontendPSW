@@ -1,3 +1,5 @@
+import 'package:first_from_zero/models/Reservation.dart';
+import 'package:first_from_zero/myWidgets/ReservationCard.dart';
 import 'package:first_from_zero/support/Global.dart';
 import 'package:first_from_zero/support/Model.dart';
 import 'package:flutter/material.dart';
@@ -12,22 +14,57 @@ class UserPage extends StatefulWidget {
   _UserState createState() => _UserState();
 }
 
-class _UserState extends State<UserPage> {
+class _UserState extends State<UserPage>
+    with AutomaticKeepAliveClientMixin<UserPage> {
   bool _adding = false;
+  bool _hasAnAccount = false;
   bool _isLoggedIn = false;
+  List<Reservation> _myRes;
   Passenger _justAddedUser;
   TextEditingController _firstNameFiledController = TextEditingController();
   TextEditingController _lastNameFiledController = TextEditingController();
-  TextEditingController _telephoneNumberFiledController =
-      TextEditingController();
   TextEditingController _emailFiledController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return GlobalData.instance.userHasAnAccount
-        ? (_isLoggedIn ? Text("logged in") : login())
-        : register();
+    return _hasAnAccount ? (_isLoggedIn ? loggedIn() : login()) : register();
+  }
+
+  Widget showRes() {
+    return Expanded(
+      child: Container(
+        child: ListView.builder(
+          itemCount: _myRes.length,
+          itemBuilder: (context, index) {
+            return ReservationCard(
+              reservation: _myRes[index],
+              //  onTap: () => setSelectedInCard(_routes[index]),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget loggedIn() {
+    return Scaffold(
+      body: Padding(
+        padding: EdgeInsets.all(15),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextButton.icon(
+                onPressed: () {
+                  _getMyReservations(_justAddedUser);
+                },
+                icon: Icon(Icons.bookmark),
+                label: Text("My bookings")),
+            _myRes == null ? Text("No reservations available") : showRes()
+          ],
+        ),
+      ),
+    );
   }
 
   Widget login() {
@@ -38,9 +75,9 @@ class _UserState extends State<UserPage> {
             Padding(
               padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
               child: Text(
-                "Register",
+                "Login",
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 20,
                   color: Theme.of(context).primaryColor,
                 ),
               ),
@@ -51,7 +88,7 @@ class _UserState extends State<UserPage> {
                 children: [
                   InputField(
                     labelText: "Email",
-                    controller: _firstNameFiledController,
+                    controller: _emailFiledController,
                   ),
                   InputField(
                     labelText: "Password",
@@ -78,8 +115,7 @@ class _UserState extends State<UserPage> {
                                 onPressed: () {
                                   setState(
                                     () {
-                                      GlobalData.instance.userHasAnAccount =
-                                          false;
+                                      _hasAnAccount = false;
                                     },
                                   );
                                 },
@@ -93,7 +129,7 @@ class _UserState extends State<UserPage> {
                       child: _adding
                           ? CircularProgressIndicator()
                           : _justAddedUser != null
-                              ? Text("just_added")
+                              ? Text("Registered successfully")
                               : SizedBox.shrink(),
                     ),
                   ),
@@ -166,8 +202,7 @@ class _UserState extends State<UserPage> {
                                                 .primaryColor)),
                                 onPressed: () => {
                                       setState(() {
-                                        GlobalData.instance.userHasAnAccount =
-                                            true;
+                                        _hasAnAccount = true;
                                       })
                                     },
                                 label: Text(
@@ -193,28 +228,34 @@ class _UserState extends State<UserPage> {
     );
   }
 
+  void _getMyReservations(Passenger p) {
+    Model.sharedInstance.getReservations(p).then((value) => setState(() {
+          _myRes = value;
+        }));
+  }
+
   void _login() {
     if (!_checkFields(true)) return;
-    setState(() {
-      Model.sharedInstance
-          .logIn(_emailFiledController.text, _passwordController.text)
-          .then((result) {
-        setState(() {
-          print(result);
-          _isLoggedIn = result == LogInResult.logged;
-        });
+    print(_emailFiledController.text + " " + _passwordController.text);
+    Model.sharedInstance
+        .logIn(
+            _emailFiledController.text.trim(), _passwordController.text.trim())
+        .then((result) {
+      setState(() {
+        print(result);
+        _isLoggedIn = result == LogInResult.logged;
       });
     });
   }
 
   bool _checkFields(bool login) {
     if (login) {
-      if (_passwordController.text == '' ||
-          _firstNameFiledController.text == '') {
+      if (_passwordController.text == '' || _emailFiledController.text == '') {
         showDialog(
             context: this.context,
             builder: (BuildContext context) {
-              return AlertDialog(title: Text("Email and password are mandatory"));
+              return AlertDialog(
+                  title: Text("Email and password are mandatory"));
             });
         return false;
       }
@@ -226,14 +267,13 @@ class _UserState extends State<UserPage> {
       showDialog(
           context: this.context,
           builder: (BuildContext context) {
-            return AlertDialog(title: Text("First name, email and password are mandatory"));
+            return AlertDialog(
+                title: Text("First name, email and password are mandatory"));
           });
       return false;
     }
     return true;
   }
-
-
 
   void _register() {
     if (!_checkFields(false)) return;
@@ -242,10 +282,10 @@ class _UserState extends State<UserPage> {
       _justAddedUser = null;
     });
     _justAddedUser = Passenger(
-      firstName: _firstNameFiledController.text,
-      lastName: _lastNameFiledController.text,
-      email: _emailFiledController.text,
-      password: _passwordController.text,
+      firstName: _firstNameFiledController.text.trim(),
+      lastName: _lastNameFiledController.text.trim(),
+      email: _emailFiledController.text.trim(),
+      password: _passwordController.text.trim(),
     );
     Model.sharedInstance.addUser(_justAddedUser).then((result) {
       setState(() {
@@ -253,4 +293,7 @@ class _UserState extends State<UserPage> {
       });
     });
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
