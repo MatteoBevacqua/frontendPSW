@@ -150,9 +150,9 @@ class _UserState extends State<UserPage> {
                             TextButton.icon(
                                 style: ButtonStyle(
                                     foregroundColor:
-                                    MaterialStateProperty.resolveWith(
+                                        MaterialStateProperty.resolveWith(
                                             (states) => Theme.of(context)
-                                            .primaryColor)),
+                                                .primaryColor)),
                                 onPressed: () {
                                   _register();
                                 },
@@ -161,9 +161,9 @@ class _UserState extends State<UserPage> {
                             TextButton.icon(
                                 style: ButtonStyle(
                                     foregroundColor:
-                                    MaterialStateProperty.resolveWith(
+                                        MaterialStateProperty.resolveWith(
                                             (states) => Theme.of(context)
-                                            .primaryColor)),
+                                                .primaryColor)),
                                 onPressed: () => {
                                       setState(() {
                                         GlobalData.instance.userHasAnAccount =
@@ -194,31 +194,49 @@ class _UserState extends State<UserPage> {
   }
 
   void _login() {
+    if (!_checkFields(true)) return;
     setState(() {
       Model.sharedInstance
           .logIn(_emailFiledController.text, _passwordController.text)
           .then((result) {
         setState(() {
+          print(result);
           _isLoggedIn = result == LogInResult.logged;
         });
       });
     });
   }
 
-  AlertDialog alert =
-      AlertDialog(title: Text("First Name , Email and password are mandatory"));
-
-  void _register() {
+  bool _checkFields(bool login) {
+    if (login) {
+      if (_passwordController.text == '' ||
+          _firstNameFiledController.text == '') {
+        showDialog(
+            context: this.context,
+            builder: (BuildContext context) {
+              return AlertDialog(title: Text("Email and password are mandatory"));
+            });
+        return false;
+      }
+      return true;
+    }
     if (_passwordController.text == '' ||
         _emailFiledController.text == '' ||
         _firstNameFiledController.text == '') {
       showDialog(
           context: this.context,
           builder: (BuildContext context) {
-            return alert;
+            return AlertDialog(title: Text("First name, email and password are mandatory"));
           });
-      return;
+      return false;
     }
+    return true;
+  }
+
+
+
+  void _register() {
+    if (!_checkFields(false)) return;
     setState(() {
       _adding = true;
       _justAddedUser = null;
