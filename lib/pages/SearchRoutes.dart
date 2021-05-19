@@ -214,7 +214,6 @@ class _SearchState extends State<SearchRoutes>
   }
 
   void setSelectedInCard(RouteModel route) {
-    print("called");
     this.setSelected(route);
     GlobalData.instance.currentlySelected = route;
     this.parent.goToBooking();

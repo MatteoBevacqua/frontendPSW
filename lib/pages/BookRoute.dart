@@ -1,4 +1,3 @@
-import 'package:first_from_zero/myWidgets/CircularIconButton.dart';
 import 'package:first_from_zero/pages/SearchRoutes.dart';
 import 'package:first_from_zero/models/RouteModel.dart';
 import 'package:first_from_zero/models/SeatModel.dart';
@@ -6,6 +5,7 @@ import 'package:first_from_zero/support/Global.dart';
 import 'package:first_from_zero/support/Model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 
 class BookRoute extends StatefulWidget {
   @override
@@ -14,7 +14,7 @@ class BookRoute extends StatefulWidget {
 
 class _BookingState extends State<BookRoute> {
   RouteModel selected;
-  List<SeatModel> seats;
+  List<SeatModel> seats, _selectedSeats;
 
   _BookingState() {
     selected = GlobalData.instance.currentlySelected;
@@ -32,23 +32,44 @@ class _BookingState extends State<BookRoute> {
   }
 
   Widget top() {
-    return selected == null ? Center(child :  Text("Select a route first",
-    style: TextStyle(fontSize: 20),)) : aight();
+    return selected == null
+        ? Center(
+            child: Text(
+            "Select a route first",
+            style: TextStyle(fontSize: 20),
+          ))
+        : aight();
   }
 
   Widget aight() {
     return Container(
         child: Column(children: [
-      RouteCard(route: selected, onTap: () => print("tapped")),
-      seats == null ? CircularProgressIndicator() : getSeats()
+      RouteCard(route: selected),
+      seats == null ? CircularProgressIndicator() : getSeats2()
     ]));
   }
 
   Widget getSeats() {
-    return Flexible(
+    return Container(
         child: ListView.builder(
       itemCount: seats.length,
       itemBuilder: (context, index) {
+        return TrainSeat(seat: seats[index]);
+      },
+    ));
+  }
+
+  Widget getSeats2() {
+    return Flexible(
+        child: GridView.builder(
+      itemCount: seats.length,
+      scrollDirection: Axis.vertical,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 4,
+          crossAxisSpacing: 25,
+          mainAxisSpacing: 25,
+          mainAxisExtent: 50),
+      itemBuilder: (BuildContext context, int index) {
         return TrainSeat(seat: seats[index]);
       },
     ));
@@ -60,22 +81,32 @@ class TrainSeat extends StatefulWidget {
 
   TrainSeat({this.seat});
 
-  _SeatState createState() => _SeatState(seatModel: seat);
+  _SeatState createState() => _SeatState(seat);
 }
 
 class _SeatState extends State<TrainSeat> {
   bool selected;
-  final SeatModel seatModel;
+  SeatModel seatModel;
+  Color color;
+  final Icon icon = Icon(Icons.event_seat_sharp, color: Colors.black);
 
-  _SeatState({this.seatModel});
+  _SeatState(SeatModel s) {
+    seatModel = s;
+    color = seatModel.isBooked ? Colors.red : Colors.green;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-        padding: EdgeInsets.all(10),
-        child: CircularIconButton(
-          onPressed: () => {print(seatModel.toJson().toString())},
-          icon: Icons.event_seat_sharp,
-        ));
+    return RawMaterialButton(
+        elevation: 3.0,
+        fillColor: color,
+        shape: CircleBorder(),
+        onPressed: () {
+          GlobalData.instance.selectedToBook.add(seatModel);
+          print(GlobalData.instance.selectedToBook);
+        },
+        child: seatModel.direction == FacingDirection.OPPOSITE
+            ? Transform.rotate(angle: 180 * math.pi / 180, child: icon)
+            : icon);
   }
 }
