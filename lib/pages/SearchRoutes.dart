@@ -216,6 +216,7 @@ class _SearchState extends State<SearchRoutes>
   void setSelectedInCard(RouteModel route) {
     this.setSelected(route);
     GlobalData.instance.currentlySelected = route;
+    GlobalData.instance.selectedToBook = List.empty(growable: true);
     this.parent.goToBooking();
   }
 
@@ -267,14 +268,13 @@ class RouteCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Card(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20.0),
+        borderRadius: BorderRadius.circular(25.0),
       ),
       child: new InkWell(
-        hoverColor: Colors.redAccent,
-        highlightColor: Colors.red,
+        hoverColor: Colors.white24,
         onTap: onTap,
         child: Padding(
-          padding: EdgeInsets.all(15),
+          padding: EdgeInsets.all(25),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -283,9 +283,7 @@ class RouteCard extends StatelessWidget {
                   Text(route.departureStation.toString(),
                       style: TextStyle(fontSize: 25))
                 ]),
-                Row(children: [
-                  Text(Utils.formatDate(route.departureTime))
-                ])
+                Row(children: [Text(Utils.formatDate(route.departureTime))])
               ]),
               Column(children: [
                 Row(children: [Icon(Icons.arrow_forward)]),
@@ -296,9 +294,7 @@ class RouteCard extends StatelessWidget {
                   Text(route.arrivalStation.toString(),
                       style: TextStyle(fontSize: 25))
                 ]),
-                Row(children: [
-                  Text(Utils.formatDate(route.arrivalTime))
-                ])
+                Row(children: [Text(Utils.formatDate(route.arrivalTime))])
               ])
             ],
           ),

@@ -157,7 +157,7 @@ class Model {
       return List<SeatModel>.from(json
           .decode(await _restManager.makeGetRequest(
               Constants.SERVER_ADDRESS, Constants.GET_SEATS, params))
-          .map((i) => SeatModel.fromJson(i))
+          .map((i) => SeatModel.fromJson(i, false))
           .toList());
     } catch (e) {
       print("error + $e");
@@ -175,6 +175,18 @@ class Model {
       } else {
         return Passenger.fromJson(jsonDecode(rawResult));
       }
+    } catch (e) {
+      return null; // not the best solution
+    }
+  }
+
+  Future<Reservation> postReservation(Reservation r) async {
+    try {
+      var res = json.decode(await _restManager.makePostRequest(
+          Constants.SERVER_ADDRESS,
+          Constants.MAKE_RESERVATION ,
+          r.toPostableDTO()));
+      return res;
     } catch (e) {
       return null; // not the best solution
     }

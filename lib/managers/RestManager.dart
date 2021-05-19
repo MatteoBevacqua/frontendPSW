@@ -32,7 +32,7 @@ class RestManager {
       if (token != null) {
         headers[HttpHeaders.authorizationHeader] = 'bearer $token';
       }
-      // making request
+
       switch (method) {
         case "post":
           response = await post(

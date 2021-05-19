@@ -244,6 +244,7 @@ class _UserState extends State<UserPage>
       setState(() {
         print(result);
         _isLoggedIn = result == LogInResult.logged;
+        GlobalData.instance.userIsLoggedIn = _isLoggedIn;
       });
     });
   }

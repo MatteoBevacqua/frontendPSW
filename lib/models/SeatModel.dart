@@ -29,16 +29,22 @@ class SeatModel {
       this.direction,
       this.isBooked});
 
-  factory SeatModel.fromJson(Map<String, dynamic> json) {
+
+
+
+  factory SeatModel.fromJson(Map<String, dynamic> json,bool DTO) {
+    if(DTO) json = json['seat'];
     return SeatModel(
         id: json['id'],
         wagonNumber: json['wagonNumber'],
         seatClass: EnumToString.fromString(SeatClass.values, json['seatClass']),
         adultPrice: json['adultPrice'],
-        childrenPrice: json['adultPrice'],
+        childrenPrice: json['childrenPrice'],
         direction:
             EnumToString.fromString(FacingDirection.values, json['direction']),
-        isBooked: json['isBooked'].toString().toLowerCase() == 'true');
+        isBooked: json['isBooked'] == null
+            ? null
+            : json['isBooked'].toString().toLowerCase() == 'true');
   }
 
   Map<String, dynamic> toJson() => {

@@ -16,6 +16,7 @@ class Constants {
   static final String CITY_AUTOFILL_ENDPOINT = "/cities/search/like";
   static final String GET_SEATS = "/seats/byRouteWithSelectionStatus";
   static final String GET_RESERVATIONS = "/reservations/all";
+  static final String MAKE_RESERVATION  = "/reservations/new";
   // requests
 
   static final String REQUEST_ADD_PASSENGER = "/users";
