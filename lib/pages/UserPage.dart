@@ -49,21 +49,14 @@ class _UserState extends State<UserPage>
 
   Widget loggedIn() {
     return Scaffold(
-      body: Padding(
-        padding: EdgeInsets.all(15),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextButton.icon(
-                onPressed: () {
-                  _getMyReservations(_justAddedUser);
-                },
-                icon: Icon(Icons.bookmark),
-                label: Text("My bookings")),
-            _myRes == null ? Text("No reservations available") : showRes()
-          ],
+      body: Center(
+          child: Column(children: [
+        Padding(
+          padding: EdgeInsets.fromLTRB(0, 25, 0, 35),
+          child: Text("My bookings", style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold)),
         ),
-      ),
+        _myRes == null ? CircularProgressIndicator() : showRes()
+      ])),
     );
   }
 
@@ -228,8 +221,8 @@ class _UserState extends State<UserPage>
     );
   }
 
-  void _getMyReservations(Passenger p) {
-    Model.sharedInstance.getReservations(p).then((value) => setState(() {
+  void _getMyReservations() {
+    Model.sharedInstance.getReservations().then((value) => setState(() {
           _myRes = value;
         }));
   }
@@ -245,6 +238,7 @@ class _UserState extends State<UserPage>
         print(result);
         _isLoggedIn = result == LogInResult.logged;
         GlobalData.instance.userIsLoggedIn = _isLoggedIn;
+        if (_isLoggedIn) _getMyReservations();
       });
     });
   }

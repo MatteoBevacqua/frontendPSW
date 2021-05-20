@@ -53,6 +53,7 @@ class Reservation {
       this.reservedSeats});
 
   factory Reservation.fromJson(Map<String, dynamic> json) {
+    print(json);
     var res = Reservation(
         id: json['id'],
         passenger: Passenger.fromJson(json['passenger']),
@@ -61,6 +62,7 @@ class Reservation {
         reservedSeats: List<SeatModel>.from((json['reservedSeats'])
             .map((i) => SeatModel.fromJson(i, true))
             .toList()));
+    print('ret');
     return res;
   }
 

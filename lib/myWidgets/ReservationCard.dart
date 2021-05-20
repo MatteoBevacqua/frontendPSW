@@ -29,7 +29,7 @@ class ReservationCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
-                  Text("Booking n° " + reservation.id.toString(),
+                  Text("Booking #" + reservation.id.toString(),
                       style: style),
                   Row(
                     children: <Widget>[
