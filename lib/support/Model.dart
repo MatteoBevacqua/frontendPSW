@@ -181,12 +181,14 @@ class Model {
     }
   }
 
-  Future<Reservation> postReservation(Reservation r) async {
+  Future<Reservation> postReservation(Reservation r,HTTPResponseWrapper wrapper) async {
     try {
       var res = json.decode(await _restManager.makePostRequest(
           Constants.SERVER_ADDRESS,
-          Constants.MAKE_RESERVATION ,
-          r.toPostableDTO()));
+          Constants.MAKE_RESERVATION,
+          r.toPostableDTO(),
+          wrapper: wrapper));
+      print(wrapper.response);
       return res;
     } catch (e) {
       return null; // not the best solution

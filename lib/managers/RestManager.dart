@@ -5,12 +5,20 @@ import 'package:http/http.dart';
 
 enum TypeHeader { json, urlencoded }
 
+class HTTPResponseWrapper {
+  HTTPResponseWrapper({this.response});
+
+  int response;
+}
+
 class RestManager {
   String token;
 
-  Future<String> _makeRequest(String serverAddress, String servicePath,
-      String method, TypeHeader type,
-      {Map<String, String> value, dynamic body}) async {
+  Future<String> _makeRequest(
+      String serverAddress, String servicePath, String method, TypeHeader type,
+      {Map<String, String> value,
+      dynamic body,
+      HTTPResponseWrapper wrapper}) async {
     //TODO HTTPS
     Uri uri = Uri.http(serverAddress, servicePath, value);
     bool errorOccurred = false;
@@ -60,21 +68,23 @@ class RestManager {
           );
           break;
       }
-
+      print(wrapper == null);
+      if (wrapper != null) wrapper.response = response.statusCode;
       print(formattedBody);
       return response.body;
     } catch (err) {
+      if (wrapper != null) wrapper.response = -1;
       print(err);
       errorOccurred = true;
     }
   }
 
-
-  Future<String> makePostRequest(String serverAddress, String servicePath,
-      dynamic value,
-      {TypeHeader type = TypeHeader.json}) async {
+  Future<String> makePostRequest(
+      String serverAddress, String servicePath, dynamic value,
+      {TypeHeader type = TypeHeader.json, HTTPResponseWrapper wrapper}) async {
     print(serverAddress + " " + servicePath);
-    return _makeRequest(serverAddress, servicePath, "post", type, body: value);
+    return _makeRequest(serverAddress, servicePath, "post", type,
+        body: value, wrapper: wrapper);
   }
 
   Future<String> makeGetRequest(String serverAddress, String servicePath,

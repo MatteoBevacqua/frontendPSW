@@ -1,3 +1,4 @@
+import 'package:first_from_zero/managers/RestManager.dart';
 import 'package:first_from_zero/models/Reservation.dart';
 import 'package:first_from_zero/pages/SearchRoutes.dart';
 import 'package:first_from_zero/models/RouteModel.dart';
@@ -16,7 +17,8 @@ class BookRoute extends StatefulWidget {
 
 class _BookingState extends State<BookRoute> {
   RouteModel selected;
-  List<SeatModel> seats, _selectedSeats;
+  List<SeatModel> seats;
+  HTTPResponseWrapper wrapper = HTTPResponseWrapper();
 
   _BookingState() {
     selected = GlobalData.instance.currentlySelected;
@@ -28,23 +30,63 @@ class _BookingState extends State<BookRoute> {
       });
   }
 
-  bool _bookSeats() {
-    /*  if(!GlobalData.instance.userIsLoggedIn) showDialog(
-        context: this.context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-              title: Text("You need to be logged in in order to book seats"));
-        });*/
+  void _bookSeats() async {
+    Text toShow;
+    if (!GlobalData.instance.userIsLoggedIn ||
+        GlobalData.instance.selectedToBook.length <= 0) {
+      print(GlobalData.instance.userIsLoggedIn);
+      if (!GlobalData.instance.userIsLoggedIn)
+        toShow = Text("You need to be logged in in order to book seats");
+      else
+        toShow = Text("Select some seats first");
+      showDialog(
+          context: this.context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+                title: toShow);
+          });
+      return;
+    }
     Reservation reservation = Reservation();
     reservation.bookedRoute = GlobalData.instance.currentlySelected;
     reservation.reservedSeats = GlobalData.instance.selectedToBook;
-    print(reservation.bookedRoute.toString() + " S ");
-    print(reservation.reservedSeats.length);
-    print(reservation.toPostableDTO());
-    Model.sharedInstance
-        .postReservation(reservation)
-        .then((value) => {print(value)});
-    return true;
+    await Model.sharedInstance.postReservation(reservation, wrapper);
+    switch (wrapper.response) {
+      case 406:
+        {
+          toShow = Text(
+              "You already made a reservation for this route,\nif you want to add or remove seats\n edit the existing one from the user page");
+        }
+        break;
+      case 409:
+        {
+          toShow = Text(
+              "Looks like someone booked some of your seats before you...");
+          Model().getAvailableSeatsOnRoute(selected).then((result) {
+            setState(() {
+              seats = result;
+            });
+          });
+        }
+        break;
+      default:
+        {
+          toShow = Text(
+              "Reservation placed successfully!\nYou can edit or delete it from the user page on your right");
+        }
+        break;
+    }
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(title: toShow);
+        });
+    //refresh the page
+    Model().getAvailableSeatsOnRoute(selected).then((result) {
+      setState(() {
+        seats = result;
+      });
+    });
   }
 
   @override
@@ -68,7 +110,8 @@ class _BookingState extends State<BookRoute> {
       SizedBox(height: 20),
       TextButton.icon(
           onPressed: () => _bookSeats(),
-          icon: Icon(Icons.shopping_cart_outlined,color: Theme.of(context).primaryColor),
+          icon: Icon(Icons.shopping_cart_outlined,
+              color: Theme.of(context).primaryColor),
           style: TextButton.styleFrom(padding: const EdgeInsets.all(16.0)),
           label: Text("Book the seats",
               style: TextStyle(
@@ -118,7 +161,7 @@ class _SeatState extends State<TrainSeat> {
   @override
   Widget build(BuildContext context) {
     if (seatModel.isBooked) {
-      color = Colors.red;
+      color = Colors.amber;
     } else {
       color = selectedByMe ? Colors.white : Colors.green;
     }
@@ -131,7 +174,6 @@ class _SeatState extends State<TrainSeat> {
               ? null
               : () {
                   GlobalData.instance.selectedToBook.add(seatModel);
-                  print(GlobalData.instance.selectedToBook);
                   setState(() {
                     if (!selectedByMe)
                       selectedByMe = true;

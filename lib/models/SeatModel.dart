@@ -33,8 +33,6 @@ class SeatModel {
 
 
   factory SeatModel.fromJson(Map<String, dynamic> json,bool DTO) {
-    print('SEAT');
-    print(json);
     if(DTO) json = json['seat'];
     return SeatModel(
         id: json['id'],

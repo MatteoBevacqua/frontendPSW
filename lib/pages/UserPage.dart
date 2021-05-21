@@ -49,14 +49,20 @@ class _UserState extends State<UserPage>
 
   Widget loggedIn() {
     return Scaffold(
-      body: Center(
-          child: Column(children: [
+
+          body: Column(
+              mainAxisSize:MainAxisSize.min ,
+              children: [
+            Padding(
+            padding: EdgeInsets.fromLTRB(0, 5, 0, 15),
+              child:
+            CircularIconButton( icon: Icons.refresh,onPressed:()=> _getMyReservations())),
         Padding(
           padding: EdgeInsets.fromLTRB(0, 25, 0, 35),
           child: Text("My bookings", style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold)),
         ),
         _myRes == null ? CircularProgressIndicator() : showRes()
-      ])),
+      ]),
     );
   }
 
@@ -235,7 +241,6 @@ class _UserState extends State<UserPage>
             _emailFiledController.text.trim(), _passwordController.text.trim())
         .then((result) {
       setState(() {
-        print(result);
         _isLoggedIn = result == LogInResult.logged;
         GlobalData.instance.userIsLoggedIn = _isLoggedIn;
         if (_isLoggedIn) _getMyReservations();
