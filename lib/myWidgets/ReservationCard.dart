@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 class ReservationCard extends StatelessWidget {
   final Reservation reservation;
   final TextStyle style = TextStyle(fontWeight: FontWeight.bold, fontSize: 15);
-
-  ReservationCard({this.reservation});
+  Function delete,modify;
+  ReservationCard({this.reservation,this.delete,this.modify});
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +82,7 @@ class ReservationCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
                         TextButton(
-                            onPressed: null,
+                            onPressed: delete,
                             child: Text("Delete Booking")),
                         SizedBox(width: 20),
                         TextButton(

@@ -12,14 +12,14 @@ class RouteModel {
   DateTime arrivalTime;
 
   int routeLength;
-
+  int seatsLeft;
   RouteModel(
       {this.id,
       this.departureStation,
       this.arrivalStation,
       this.departureTime,
       this.arrivalTime,
-      this.routeLength});
+      this.routeLength,this.seatsLeft});
 
   factory RouteModel.fromJson(Map<String, dynamic> json) {
     return RouteModel(
@@ -28,7 +28,9 @@ class RouteModel {
         arrivalStation: TrainStation.fromJson(json['arrivalStation']),
         departureTime: DateTime.parse(json['departureTime']),
         arrivalTime: DateTime.parse(json['arrivalTime']),
-        routeLength: json['routeLength']);
+        routeLength: json['routeLength'],
+        seatsLeft: json['seatsLeft']
+    );
   }
 
   Map<String, dynamic> toJson() => {

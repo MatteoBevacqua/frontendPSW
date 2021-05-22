@@ -215,9 +215,16 @@ class _SearchState extends State<SearchRoutes>
 
   void setSelectedInCard(RouteModel route) {
     this.setSelected(route);
-    GlobalData.instance.currentlySelected = route;
-    GlobalData.instance.selectedToBook = List.empty(growable: true);
+    GlobalData.currentlySelected = route;
+    GlobalData.selectedToBook = List.empty(growable: true);
     this.parent.goToBooking();
+  }
+
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   Widget showResults() {
@@ -267,6 +274,7 @@ class RouteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new Card(
+      elevation: 25,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(25.0),
       ),
@@ -286,8 +294,16 @@ class RouteCard extends StatelessWidget {
                 Row(children: [Text(Utils.formatDate(route.departureTime))])
               ]),
               Column(children: [
+                Row(children: [Text("Route #" + route.id.toString())],),
                 Row(children: [Icon(Icons.arrow_forward)]),
-                Row(children: [Text(route.routeLength.toString() + " km")])
+                Row(children: [Text(route.routeLength.toString() + " km")]),
+                Padding(
+                    padding: EdgeInsets.only(top: 10),
+                    child: Row(children: [
+                      Text("Seats left: " + route.seatsLeft.toString(),
+                      style: TextStyle(fontWeight: FontWeight.bold,
+                      fontSize: 18))
+                    ]))
               ]),
               Column(children: [
                 Row(children: [

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:first_from_zero/managers/RestManager.dart';
 import 'package:first_from_zero/models/Reservation.dart';
 import 'package:first_from_zero/pages/SearchRoutes.dart';
@@ -16,40 +18,50 @@ class BookRoute extends StatefulWidget {
 }
 
 class _BookingState extends State<BookRoute> {
-  RouteModel selected;
   List<SeatModel> seats;
   HTTPResponseWrapper wrapper = HTTPResponseWrapper();
 
-  _BookingState() {
-    selected = GlobalData.instance.currentlySelected;
-    if (selected != null)
-      Model().getAvailableSeatsOnRoute(selected).then((result) {
-        setState(() {
-          seats = result;
-        });
+  void _updateSeatsAndRebuild() async {
+    await Model()
+        .getAvailableSeatsOnRoute(GlobalData.currentlySelected)
+        .then((result) {
+      setState(() {
+        seats = result;
       });
+    });
   }
+
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  _BookingState() {
+    if (GlobalData.currentlySelected != null) _updateSeatsAndRebuild();
+  }
+
 
   void _bookSeats() async {
     Text toShow;
-    if (!GlobalData.instance.userIsLoggedIn ||
-        GlobalData.instance.selectedToBook.length <= 0) {
-      print(GlobalData.instance.userIsLoggedIn);
-      if (!GlobalData.instance.userIsLoggedIn)
+    bool successful = false;
+    if (!GlobalData.userIsLoggedIn || GlobalData.selectedToBook.length <= 0) {
+      print(GlobalData.userIsLoggedIn);
+      if (!GlobalData.userIsLoggedIn)
         toShow = Text("You need to be logged in in order to book seats");
       else
         toShow = Text("Select some seats first");
       showDialog(
           context: this.context,
           builder: (BuildContext context) {
-            return AlertDialog(
-                title: toShow);
+            return AlertDialog(title: toShow);
           });
       return;
     }
     Reservation reservation = Reservation();
-    reservation.bookedRoute = GlobalData.instance.currentlySelected;
-    reservation.reservedSeats = GlobalData.instance.selectedToBook;
+    reservation.bookedRoute = GlobalData.currentlySelected;
+    reservation.reservedSeats = GlobalData.selectedToBook;
     await Model.sharedInstance.postReservation(reservation, wrapper);
     switch (wrapper.response) {
       case 406:
@@ -62,7 +74,9 @@ class _BookingState extends State<BookRoute> {
         {
           toShow = Text(
               "Looks like someone booked some of your seats before you...");
-          Model().getAvailableSeatsOnRoute(selected).then((result) {
+          Model()
+              .getAvailableSeatsOnRoute(GlobalData.currentlySelected)
+              .then((result) {
             setState(() {
               seats = result;
             });
@@ -71,6 +85,7 @@ class _BookingState extends State<BookRoute> {
         break;
       default:
         {
+          successful = true;
           toShow = Text(
               "Reservation placed successfully!\nYou can edit or delete it from the user page on your right");
         }
@@ -81,12 +96,13 @@ class _BookingState extends State<BookRoute> {
         builder: (BuildContext context) {
           return AlertDialog(title: toShow);
         });
-    //refresh the page
-    Model().getAvailableSeatsOnRoute(selected).then((result) {
-      setState(() {
-        seats = result;
-      });
-    });
+    if (successful) {
+      for (SeatModel s in GlobalData.selectedToBook) {
+        s.isBooked = true;
+      }
+      GlobalData.currentlySelected.seatsLeft-=GlobalData.selectedToBook.length;
+      setState(() {});
+    }
   }
 
   @override
@@ -95,7 +111,7 @@ class _BookingState extends State<BookRoute> {
   }
 
   Widget top() {
-    return selected == null
+    return GlobalData.currentlySelected == null
         ? Center(
             child: Text(
             "Select a route first",
@@ -106,7 +122,7 @@ class _BookingState extends State<BookRoute> {
 
   Widget aight() {
     return Column(children: [
-      RouteCard(route: selected),
+      RouteCard(route: GlobalData.currentlySelected),
       SizedBox(height: 20),
       TextButton.icon(
           onPressed: () => _bookSeats(),
@@ -173,13 +189,13 @@ class _SeatState extends State<TrainSeat> {
           onPressed: seatModel.isBooked
               ? null
               : () {
-                  GlobalData.instance.selectedToBook.add(seatModel);
+                  GlobalData.selectedToBook.add(seatModel);
                   setState(() {
                     if (!selectedByMe)
                       selectedByMe = true;
                     else {
                       selectedByMe = false;
-                      GlobalData.instance.selectedToBook.remove(seatModel);
+                      GlobalData.selectedToBook.remove(seatModel);
                     }
                   });
                 },

@@ -1,3 +1,4 @@
+import 'package:first_from_zero/managers/RestManager.dart';
 import 'package:first_from_zero/models/Reservation.dart';
 import 'package:first_from_zero/myWidgets/ReservationCard.dart';
 import 'package:first_from_zero/support/Global.dart';
@@ -17,18 +18,21 @@ class UserPage extends StatefulWidget {
 class _UserState extends State<UserPage>
     with AutomaticKeepAliveClientMixin<UserPage> {
   bool _adding = false;
-  bool _hasAnAccount = false;
-  bool _isLoggedIn = false;
   List<Reservation> _myRes;
   Passenger _justAddedUser;
   TextEditingController _firstNameFiledController = TextEditingController();
   TextEditingController _lastNameFiledController = TextEditingController();
   TextEditingController _emailFiledController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
-
+  @override
+  void setState(fn) {
+    if(mounted) {
+      super.setState(fn);
+    }
+  }
   @override
   Widget build(BuildContext context) {
-    return _hasAnAccount ? (_isLoggedIn ? loggedIn() : login()) : register();
+    return GlobalData.userHasAnAccount ? (GlobalData.userIsLoggedIn ? loggedIn() : login()) : register();
   }
 
   Widget showRes() {
@@ -39,6 +43,12 @@ class _UserState extends State<UserPage>
           itemBuilder: (context, index) {
             return ReservationCard(
               reservation: _myRes[index],
+              delete: () {
+                Model.sharedInstance
+                    .deleteReservation(_myRes[index],
+                        wrapper: HTTPResponseWrapper())
+                   .then((value) => _getMyReservations());
+              },
               //  onTap: () => setSelectedInCard(_routes[index]),
             );
           },
@@ -47,19 +57,18 @@ class _UserState extends State<UserPage>
     );
   }
 
+
   Widget loggedIn() {
     return Scaffold(
-
-          body: Column(
-              mainAxisSize:MainAxisSize.min ,
-              children: [
-            Padding(
+      body: Column(mainAxisSize: MainAxisSize.min, children: [
+        Padding(
             padding: EdgeInsets.fromLTRB(0, 5, 0, 15),
-              child:
-            CircularIconButton( icon: Icons.refresh,onPressed:()=> _getMyReservations())),
+            child: CircularIconButton(
+                icon: Icons.refresh, onPressed: () => _getMyReservations())),
         Padding(
           padding: EdgeInsets.fromLTRB(0, 25, 0, 35),
-          child: Text("My bookings", style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold)),
+          child: Text("My bookings",
+              style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
         ),
         _myRes == null ? CircularProgressIndicator() : showRes()
       ]),
@@ -114,7 +123,7 @@ class _UserState extends State<UserPage>
                                 onPressed: () {
                                   setState(
                                     () {
-                                      _hasAnAccount = false;
+                                      GlobalData.userHasAnAccount = false;
                                     },
                                   );
                                 },
@@ -201,7 +210,7 @@ class _UserState extends State<UserPage>
                                                 .primaryColor)),
                                 onPressed: () => {
                                       setState(() {
-                                        _hasAnAccount = true;
+                                        GlobalData.userHasAnAccount = true;
                                       })
                                     },
                                 label: Text(
@@ -230,6 +239,7 @@ class _UserState extends State<UserPage>
   void _getMyReservations() {
     Model.sharedInstance.getReservations().then((value) => setState(() {
           _myRes = value;
+          _myRes.sort((a, b) => a.id.compareTo(b.id));
         }));
   }
 
@@ -241,9 +251,8 @@ class _UserState extends State<UserPage>
             _emailFiledController.text.trim(), _passwordController.text.trim())
         .then((result) {
       setState(() {
-        _isLoggedIn = result == LogInResult.logged;
-        GlobalData.instance.userIsLoggedIn = _isLoggedIn;
-        if (_isLoggedIn) _getMyReservations();
+        GlobalData.userIsLoggedIn = result == LogInResult.logged;
+        if (GlobalData.userIsLoggedIn) _getMyReservations();
       });
     });
   }

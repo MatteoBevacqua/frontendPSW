@@ -19,6 +19,7 @@ class RestManager {
       {Map<String, String> value,
       dynamic body,
       HTTPResponseWrapper wrapper}) async {
+
     //TODO HTTPS
     Uri uri = Uri.http(serverAddress, servicePath, value);
     bool errorOccurred = false;
@@ -34,13 +35,13 @@ class RestManager {
         contentType = "application/x-www-form-urlencoded";
         formattedBody = body.keys.map((key) => "$key=${body[key]}").join("&");
       }
+
       // setting headers
       Map<String, String> headers = Map();
       headers[HttpHeaders.contentTypeHeader] = contentType;
       if (token != null) {
         headers[HttpHeaders.authorizationHeader] = 'bearer $token';
       }
-
       switch (method) {
         case "post":
           response = await post(
@@ -62,19 +63,14 @@ class RestManager {
           );
           break;
         case "delete":
-          response = await delete(
-            uri,
-            headers: headers,
-          );
+          response = await delete(uri, headers: headers);
           break;
       }
-      print(wrapper == null);
       if (wrapper != null) wrapper.response = response.statusCode;
-      print(formattedBody);
       return response.body;
     } catch (err) {
+      print(err + "in rest");
       if (wrapper != null) wrapper.response = -1;
-      print(err);
       errorOccurred = true;
     }
   }
@@ -82,7 +78,6 @@ class RestManager {
   Future<String> makePostRequest(
       String serverAddress, String servicePath, dynamic value,
       {TypeHeader type = TypeHeader.json, HTTPResponseWrapper wrapper}) async {
-    print(serverAddress + " " + servicePath);
     return _makeRequest(serverAddress, servicePath, "post", type,
         body: value, wrapper: wrapper);
   }
@@ -99,7 +94,7 @@ class RestManager {
 
   Future<String> makeDeleteRequest(String serverAddress, String servicePath,
       [Map<String, String> value, TypeHeader type]) async {
-    return _makeRequest(serverAddress, servicePath, "delete", type,
+    return _makeRequest(serverAddress, servicePath, "delete", TypeHeader.json,
         value: value);
   }
 }

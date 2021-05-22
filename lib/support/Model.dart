@@ -48,9 +48,9 @@ class Model {
       }
       _restManager.token = _authenticationData.accessToken;
       Timer.periodic(Duration(seconds: (_authenticationData.expiresIn - 50)),
-          (Timer t) {
-        _refreshToken();
-      });
+              (Timer t) {
+            _refreshToken();
+          });
       return LogInResult.logged;
     } catch (e) {
       print(e);
@@ -62,7 +62,7 @@ class Model {
     try {
       var res = List<Reservation>.from(json
           .decode(await _restManager.makeGetRequest(
-              Constants.SERVER_ADDRESS, Constants.GET_RESERVATIONS, null))
+          Constants.SERVER_ADDRESS, Constants.GET_RESERVATIONS, null))
           .map((i) => Reservation.fromJson(i))
           .toList());
       return res;
@@ -70,6 +70,16 @@ class Model {
       print(e);
       return null;
     }
+  }
+
+  Future<int> getNumberOfSeatsLeft(int routeId) async {
+    Map<String, String> params = Map();
+    params['routeId'] = routeId.toString();
+    var resp = json.decode(await _restManager.makeGetRequest(
+        Constants.SERVER_ADDRESS, Constants.UPDATE_SEATS_BACKGROUND, params
+    ));
+    return resp;
+
   }
 
   Future<bool> logOut() async {
@@ -122,8 +132,8 @@ class Model {
     }
   }
 
-  Future<List<RouteModel>> searchRoutes(
-      String depCity, String arrCity, DateTime from, DateTime to) async {
+  Future<List<RouteModel>> searchRoutes(String depCity, String arrCity,
+      DateTime from, DateTime to) async {
     Map<String, String> params = Map();
     String endpoint;
     if (from != null) params['startDate'] = from.toIso8601String();
@@ -142,7 +152,7 @@ class Model {
     try {
       return List<RouteModel>.from(json
           .decode(await _restManager.makeGetRequest(Constants.SERVER_ADDRESS,
-              Constants.REQUEST_GET_ROUTES + endpoint, params))
+          Constants.REQUEST_GET_ROUTES + endpoint, params))
           .map((i) => RouteModel.fromJson(i))
           .toList());
     } catch (e) {
@@ -157,7 +167,7 @@ class Model {
     try {
       return List<SeatModel>.from(json
           .decode(await _restManager.makeGetRequest(
-              Constants.SERVER_ADDRESS, Constants.GET_SEATS, params))
+          Constants.SERVER_ADDRESS, Constants.GET_SEATS, params))
           .map((i) => SeatModel.fromJson(i, false))
           .toList());
     } catch (e) {
@@ -181,7 +191,8 @@ class Model {
     }
   }
 
-  Future<Reservation> postReservation(Reservation r,HTTPResponseWrapper wrapper) async {
+  Future<Reservation> postReservation(Reservation r,
+      HTTPResponseWrapper wrapper) async {
     try {
       var res = json.decode(await _restManager.makePostRequest(
           Constants.SERVER_ADDRESS,
@@ -195,11 +206,26 @@ class Model {
     }
   }
 
+  Future<bool> deleteReservation(Reservation r,
+      {HTTPResponseWrapper wrapper}) async {
+    Map<String, String> params = Map();
+    params['id'] = r.id.toString();
+    try {
+      await (_restManager.makeDeleteRequest(
+          Constants.SERVER_ADDRESS,
+          Constants.DELETE_RESERVATION, params));
+      return wrapper.response == 200;
+    } catch (e) {
+      print(e.toString() + " in model");
+      return false;
+    }
+  }
+
   Future<List<City>> getAll() async {
     try {
       return List<City>.from(json
           .decode(await _restManager.makeGetRequest(
-              Constants.SERVER_ADDRESS, Constants.CITIES + "/all", null))
+          Constants.SERVER_ADDRESS, Constants.CITIES + "/all", null))
           .map((i) => City.fromJson(i))
           .toList());
     } catch (e) {
