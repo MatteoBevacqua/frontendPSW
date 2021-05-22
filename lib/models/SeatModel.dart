@@ -30,6 +30,8 @@ class SeatModel {
       this.isBooked});
 
 
+  @override
+  bool operator ==(Object other) => other is SeatModel && other.id == id ;
 
 
   factory SeatModel.fromJson(Map<String, dynamic> json,bool DTO) {

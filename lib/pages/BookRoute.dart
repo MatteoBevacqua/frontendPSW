@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:first_from_zero/managers/RestManager.dart';
 import 'package:first_from_zero/models/Reservation.dart';
 import 'package:first_from_zero/pages/SearchRoutes.dart';
-import 'package:first_from_zero/models/RouteModel.dart';
 import 'package:first_from_zero/models/SeatModel.dart';
 import 'package:first_from_zero/support/Global.dart';
 import 'package:first_from_zero/support/Model.dart';
@@ -22,7 +21,7 @@ class _BookingState extends State<BookRoute> {
   HTTPResponseWrapper wrapper = HTTPResponseWrapper();
 
   void _updateSeatsAndRebuild() async {
-    await Model()
+    await Model.sharedInstance
         .getAvailableSeatsOnRoute(GlobalData.currentlySelected)
         .then((result) {
       setState(() {
@@ -42,11 +41,9 @@ class _BookingState extends State<BookRoute> {
     if (GlobalData.currentlySelected != null) _updateSeatsAndRebuild();
   }
 
-
   void _bookSeats() async {
     Text toShow;
     bool successful = false;
-    print("???");
     print(GlobalData.selectedToBook);
     if (!GlobalData.userIsLoggedIn || GlobalData.selectedToBook.length <= 0) {
       print(GlobalData.userIsLoggedIn);
@@ -76,7 +73,7 @@ class _BookingState extends State<BookRoute> {
         {
           toShow = Text(
               "Looks like someone booked some of your seats before you...");
-          Model()
+          Model.sharedInstance
               .getAvailableSeatsOnRoute(GlobalData.currentlySelected)
               .then((result) {
             setState(() {
@@ -102,7 +99,8 @@ class _BookingState extends State<BookRoute> {
       for (SeatModel s in GlobalData.selectedToBook) {
         s.isBooked = true;
       }
-      GlobalData.currentlySelected.seatsLeft-=GlobalData.selectedToBook.length;
+      GlobalData.currentlySelected.seatsLeft -=
+          GlobalData.selectedToBook.length;
       setState(() {});
     }
   }
@@ -151,34 +149,46 @@ class _BookingState extends State<BookRoute> {
           gridDelegate:
               SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
           itemBuilder: (BuildContext context, int index) {
-            return TrainSeat(seat: seats[index]);
+            return TrainSeat(seat: seats[index], modifying: false);
           },
         ));
   }
 }
 
 class TrainSeat extends StatefulWidget {
+  @override
+  bool operator ==(Object other) => other is TrainSeat && other.seat == seat;
+
   final SeatModel seat;
+  bool selected = false, selectedByMe = false, modifying = false;
 
-  TrainSeat({this.seat});
+  TrainSeat({this.seat, this.selected, this.selectedByMe, this.modifying}) {
+    this.selected = seat.isBooked;
+    if (selectedByMe == null) selectedByMe = false;
+    if (modifying == null) modifying = false;
+  }
 
-  _SeatState createState() => _SeatState(seat);
+  _SeatState createState() => _SeatState(
+      seatModel: seat,
+      selected: seat.isBooked,
+      selectedByMe: selectedByMe,
+      modifying: modifying);
 }
 
 class _SeatState extends State<TrainSeat> {
-  bool selected, selectedByMe = false;
+  bool selected = false, selectedByMe = false, modifying = false;
   SeatModel seatModel;
+
+  _SeatState(
+      {this.seatModel, this.selected, this.selectedByMe, this.modifying});
+
   Color color;
   final Icon icon = Icon(Icons.event_seat_sharp, color: Colors.black);
   TextStyle descr = TextStyle(fontWeight: FontWeight.bold, fontSize: 15);
 
-  _SeatState(SeatModel s) {
-    seatModel = s;
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (seatModel.isBooked) {
+    if (selected && !selectedByMe) {
       color = Colors.amber;
     } else {
       color = selectedByMe ? Colors.white : Colors.green;
@@ -188,18 +198,24 @@ class _SeatState extends State<TrainSeat> {
           constraints: BoxConstraints.expand(width: 50, height: 50),
           fillColor: color,
           shape: CircleBorder(),
-          onPressed: seatModel.isBooked
+          onPressed: (selected && !selectedByMe)
               ? null
               : () {
-                  GlobalData.selectedToBook.add(seatModel);
                   setState(() {
-                    if (!selectedByMe)
-                      selectedByMe = true;
-                    else {
-                      selectedByMe = false;
-                      GlobalData.selectedToBook.remove(seatModel);
-                    }
+                    GlobalData.selectedToBook.add(seatModel);
+                    setState(() {
+                      if (!selectedByMe) {
+                        selectedByMe = true;
+                        selected = true;
+                        if (modifying) GlobalData.toAdd.add(seatModel);
+                      } else {
+                        selectedByMe = false;
+                        selected = false;
+                        if (modifying) GlobalData.toRemove.add(seatModel);
+                      }
+                    });
                   });
+                  print(selected.toString() +" " + selectedByMe.toString());
                 },
           child: seatModel.direction == FacingDirection.OPPOSITE
               ? Transform.rotate(angle: 180 * math.pi / 180, child: icon)

@@ -101,7 +101,7 @@ class ReservationCard extends StatelessWidget {
                           style)),
                         SizedBox(width: 20),
                         TextButton(
-                            onPressed: null, child: Text("Modify Booking",style: style,)),
+                            onPressed: modify, child: Text("Modify Booking",style: style,)),
                         SizedBox(width: 5)
                       ],
                     ),

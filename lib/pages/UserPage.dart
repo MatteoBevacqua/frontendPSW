@@ -1,5 +1,6 @@
 import 'package:first_from_zero/managers/RestManager.dart';
 import 'package:first_from_zero/models/Reservation.dart';
+import 'package:first_from_zero/models/SeatModel.dart';
 import 'package:first_from_zero/myWidgets/ReservationCard.dart';
 import 'package:first_from_zero/support/Global.dart';
 import 'package:first_from_zero/support/Model.dart';
@@ -7,6 +8,8 @@ import 'package:flutter/material.dart';
 import '../myWidgets/CircularIconButton.dart';
 import '../myWidgets/InputField.dart';
 import '../models/Passenger.dart';
+import 'BookRoute.dart';
+import 'SearchRoutes.dart';
 
 class UserPage extends StatefulWidget {
   UserPage({Key key}) : super(key: key);
@@ -20,6 +23,8 @@ class _UserState extends State<UserPage>
   bool _adding = false;
   List<Reservation> _myRes;
   Passenger _justAddedUser;
+  List<SeatModel> resSeats;
+
   TextEditingController _firstNameFiledController = TextEditingController();
   TextEditingController _lastNameFiledController = TextEditingController();
   TextEditingController _emailFiledController = TextEditingController();
@@ -35,8 +40,7 @@ class _UserState extends State<UserPage>
   @override
   void initState() {
     if (GlobalData.userIsLoggedIn)
-      Model.sharedInstance.getReservations().then((value) =>
-          setState(() {
+      Model.sharedInstance.getReservations().then((value) => setState(() {
             _myRes = value;
           }));
   }
@@ -48,36 +52,93 @@ class _UserState extends State<UserPage>
         : register();
   }
 
+  Widget modifyReservation(Reservation r) {
+    print(r.reservedSeats);
+    return Scaffold(
+        appBar: AppBar(
+          title: Text("Edit reservation"),
+        ),
+        body: Column(children: [
+          RouteCard(route: r.bookedRoute),
+          SizedBox(height: 20),
+          TextButton.icon(
+              onPressed: () => (){
+                for(SeatModel s in GlobalData.toAdd){
+                  if(r.reservedSeats.contains(s)) GlobalData.toAdd.remove(s);
+                }
+                for(SeatModel s in GlobalData.toAdd){
+                  if(!r.reservedSeats.contains(s)) GlobalData.toRemove.remove(s);
+                }
+                Model.sharedInstance.modifyReservation(r);
+              },
+              icon: Icon(Icons.edit, color: Theme.of(context).primaryColor),
+              style: TextButton.styleFrom(padding: const EdgeInsets.all(16.0)),
+              label: Text("Submit changes",
+                  style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                      decorationThickness: 2,
+                      color: Theme.of(context).primaryColor))),
+          SizedBox(height: 50),
+          Expanded(
+              flex: 1,
+              child: GridView.builder(
+                itemCount: resSeats.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4),
+                itemBuilder: (BuildContext context, int index) {
+                  bool byMe = r.reservedSeats.contains(resSeats[index]);
+                  print(byMe.toString() + "  " + resSeats[index].id.toString());
+                  return TrainSeat(
+                      seat: resSeats[index],
+                      selectedByMe: byMe,
+                      selected: resSeats[index].isBooked,
+                      modifying: true);
+                },
+              ))
+        ]));
+  }
+
   Widget showRes() {
     return Expanded(
       child: Container(
           child: ListView.builder(
-            itemCount: _myRes.length,
-            itemBuilder: (context, index) {
-              return ReservationCard(
-                reservation: _myRes[index],
-                delete: () async {
-                  bool value = await Model.sharedInstance.deleteReservation(
-                      _myRes[index],
-                      wrapper: HTTPResponseWrapper());
-                  Text toShow;
-                  if (value) {
-                    _myRes[index].bookedRoute.seatsLeft +=
-                        _myRes[index].reservedSeats.length;
-                    toShow = Text("Reservation deleted successfully!");
-                  } else
-                    toShow = Text("There was an error,try again");
-                  showDialog(
-                      context: this.context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(title: toShow);
-                      });
-                  _getMyReservations();
-                },
-                //  onTap: () => setSelectedInCard(_routes[index]),
-              );
+        itemCount: _myRes.length,
+        itemBuilder: (context, index) {
+          return ReservationCard(
+            reservation: _myRes[index],
+            modify: () async {
+              resSeats = await Model.sharedInstance
+                  .getAvailableSeatsOnRoute(_myRes[index].bookedRoute);
+              resSeats.sort((a, b) => a.id.compareTo(b.id));
+              showDialog(
+                  context: this.context,
+                  builder: (BuildContext context) {
+                    return modifyReservation(_myRes[index]);
+                  });
             },
-          )),
+            delete: () async {
+              bool value = await Model.sharedInstance.deleteReservation(
+                  _myRes[index],
+                  wrapper: HTTPResponseWrapper());
+              Text toShow;
+              if (value) {
+                _myRes[index].bookedRoute.seatsLeft +=
+                    _myRes[index].reservedSeats.length;
+                toShow = Text("Reservation deleted successfully!");
+              } else
+                toShow = Text("There was an error,try again");
+              showDialog(
+                  context: this.context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(title: toShow);
+                  });
+              _getMyReservations();
+            },
+            //  onTap: () => setSelectedInCard(_routes[index]),
+          );
+        },
+      )),
     );
   }
 
@@ -105,9 +166,7 @@ class _UserState extends State<UserPage>
                 "Login",
                 style: TextStyle(
                   fontSize: 20,
-                  color: Theme
-                      .of(context)
-                      .primaryColor,
+                  color: Theme.of(context).primaryColor,
                 ),
               ),
             ),
@@ -138,14 +197,12 @@ class _UserState extends State<UserPage>
                             TextButton.icon(
                                 style: ButtonStyle(
                                     foregroundColor:
-                                    MaterialStateProperty.resolveWith(
-                                            (states) =>
-                                        Theme
-                                            .of(context)
-                                            .primaryColor)),
+                                        MaterialStateProperty.resolveWith(
+                                            (states) => Theme.of(context)
+                                                .primaryColor)),
                                 onPressed: () {
                                   setState(
-                                        () {
+                                    () {
                                       GlobalData.userHasAnAccount = false;
                                     },
                                   );
@@ -160,8 +217,8 @@ class _UserState extends State<UserPage>
                       child: _adding
                           ? CircularProgressIndicator()
                           : _justAddedUser != null
-                          ? Text("Registered successfully")
-                          : SizedBox.shrink(),
+                              ? Text("Registered successfully")
+                              : SizedBox.shrink(),
                     ),
                   ),
                 ],
@@ -184,9 +241,7 @@ class _UserState extends State<UserPage>
                 "Register",
                 style: TextStyle(
                   fontSize: 15,
-                  color: Theme
-                      .of(context)
-                      .primaryColor,
+                  color: Theme.of(context).primaryColor,
                 ),
               ),
             ),
@@ -219,11 +274,9 @@ class _UserState extends State<UserPage>
                             TextButton.icon(
                                 style: ButtonStyle(
                                     foregroundColor:
-                                    MaterialStateProperty.resolveWith(
-                                            (states) =>
-                                        Theme
-                                            .of(context)
-                                            .primaryColor)),
+                                        MaterialStateProperty.resolveWith(
+                                            (states) => Theme.of(context)
+                                                .primaryColor)),
                                 onPressed: () {
                                   _register();
                                 },
@@ -232,17 +285,14 @@ class _UserState extends State<UserPage>
                             TextButton.icon(
                                 style: ButtonStyle(
                                     foregroundColor:
-                                    MaterialStateProperty.resolveWith(
-                                            (states) =>
-                                        Theme
-                                            .of(context)
-                                            .primaryColor)),
-                                onPressed: () =>
-                                {
-                                  setState(() {
-                                    GlobalData.userHasAnAccount = true;
-                                  })
-                                },
+                                        MaterialStateProperty.resolveWith(
+                                            (states) => Theme.of(context)
+                                                .primaryColor)),
+                                onPressed: () => {
+                                      setState(() {
+                                        GlobalData.userHasAnAccount = true;
+                                      })
+                                    },
                                 label: Text(
                                     "Already have an account ? \n      Login"),
                                 icon: Icon(Icons.login))
@@ -253,8 +303,8 @@ class _UserState extends State<UserPage>
                       child: _adding
                           ? CircularProgressIndicator()
                           : _justAddedUser != null
-                          ? Text("just_added")
-                          : SizedBox.shrink(),
+                              ? Text("just_added")
+                              : SizedBox.shrink(),
                     ),
                   ),
                 ],
@@ -267,8 +317,7 @@ class _UserState extends State<UserPage>
   }
 
   void _getMyReservations() {
-    Model.sharedInstance.getReservations().then((value) =>
-        setState(() {
+    Model.sharedInstance.getReservations().then((value) => setState(() {
           _myRes = value;
           _myRes.sort((a, b) => a.id.compareTo(b.id));
         }));
@@ -279,7 +328,7 @@ class _UserState extends State<UserPage>
     print(_emailFiledController.text + " " + _passwordController.text);
     Model.sharedInstance
         .logIn(
-        _emailFiledController.text.trim(), _passwordController.text.trim())
+            _emailFiledController.text.trim(), _passwordController.text.trim())
         .then((result) {
       setState(() {
         GlobalData.userIsLoggedIn = result == LogInResult.logged;

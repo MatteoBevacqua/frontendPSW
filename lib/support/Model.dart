@@ -221,6 +221,15 @@ class Model {
     }
   }
 
+  Future<bool> modifyReservation(Reservation r) async{
+    try{
+
+    }catch(e){
+
+    }
+
+  }
+
   Future<List<City>> getAll() async {
     try {
       return List<City>.from(json

@@ -5,5 +5,6 @@ class GlobalData {
   static RouteModel currentlySelected;
   static bool userHasAnAccount = false;
   static bool userIsLoggedIn = false;
-  static List<SeatModel> selectedToBook = List.empty(growable: true);
+  static List<SeatModel> selectedToBook = List.empty(growable: true), toAdd = List.empty(growable: true),
+      toRemove = List.empty(growable: true);
 }
