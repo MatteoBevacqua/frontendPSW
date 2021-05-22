@@ -213,7 +213,7 @@ class Model {
     try {
       await (_restManager.makeDeleteRequest(
           Constants.SERVER_ADDRESS,
-          Constants.DELETE_RESERVATION, params));
+          Constants.DELETE_RESERVATION, value:  params, wrapper : wrapper));
       return wrapper.response == 200;
     } catch (e) {
       print(e.toString() + " in model");

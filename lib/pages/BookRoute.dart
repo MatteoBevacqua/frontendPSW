@@ -46,6 +46,8 @@ class _BookingState extends State<BookRoute> {
   void _bookSeats() async {
     Text toShow;
     bool successful = false;
+    print("???");
+    print(GlobalData.selectedToBook);
     if (!GlobalData.userIsLoggedIn || GlobalData.selectedToBook.length <= 0) {
       print(GlobalData.userIsLoggedIn);
       if (!GlobalData.userIsLoggedIn)

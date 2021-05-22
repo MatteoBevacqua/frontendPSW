@@ -92,9 +92,9 @@ class RestManager {
     return _makeRequest(serverAddress, servicePath, "put", type, value: value);
   }
 
-  Future<String> makeDeleteRequest(String serverAddress, String servicePath,
-      [Map<String, String> value, TypeHeader type]) async {
+  Future<String> makeDeleteRequest(String serverAddress, String servicePath,{HTTPResponseWrapper wrapper,
+  Map<String, String> value, TypeHeader type}) async {
     return _makeRequest(serverAddress, servicePath, "delete", TypeHeader.json,
-        value: value);
+        value: value,wrapper: wrapper);
   }
 }

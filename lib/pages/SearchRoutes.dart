@@ -294,7 +294,7 @@ class RouteCard extends StatelessWidget {
                 Row(children: [Text(Utils.formatDate(route.departureTime))])
               ]),
               Column(children: [
-                Row(children: [Text("Route #" + route.id.toString())],),
+                Row(children: [Text("Route #" + route.id.toString())]),
                 Row(children: [Icon(Icons.arrow_forward)]),
                 Row(children: [Text(route.routeLength.toString() + " km")]),
                 Padding(

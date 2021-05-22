@@ -5,19 +5,19 @@ import 'package:flutter/material.dart';
 
 class ReservationCard extends StatelessWidget {
   final Reservation reservation;
-  final TextStyle style = TextStyle(fontWeight: FontWeight.bold, fontSize: 15);
-  Function delete,modify;
-  ReservationCard({this.reservation,this.delete,this.modify});
+  final TextStyle style = TextStyle(fontWeight: FontWeight.bold, fontSize: 15,color: Colors.black);
+  Function delete, modify;
+
+  ReservationCard({this.reservation, this.delete, this.modify});
 
   @override
   Widget build(BuildContext context) {
-    return  Card(
+    return Card(
       clipBehavior: Clip.antiAlias,
       child: Container(
         height: 120,
         padding: const EdgeInsets.all(0),
         child: Row(children: [
-
           Spacer(
             flex: 1,
           ),
@@ -29,25 +29,40 @@ class ReservationCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
-                  Text("Booking #" + reservation.id.toString(),
-                      style: style),
+                  Row(children: [
+                    Text("Booking #" + reservation.id.toString(), style: style),
+                    Padding(
+                        padding: EdgeInsets.only(left: 25),
+                        child: Text(
+                          "Number of seats reserved : " +
+                              reservation.reservedSeats.length.toString(),
+                          style: style,
+                        )),
+                    Padding(
+                        padding: EdgeInsets.only(left: 25),
+                        child: Text(
+                          "Route #" +
+                              reservation.bookedRoute.id.toString(),
+                          style: style,
+                        ))
+                  ]),
                   Row(
                     children: <Widget>[
                       Text(
-                        'Departure Station : ' ,
+                        'Departure Station : ',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       Text(
-                         reservation.bookedRoute.departureStation.name,
+                        reservation.bookedRoute.departureStation.name,
                         style: style,
                       ),
                       SizedBox(width: 100),
                       Text(
-                        'Arrival Station : ' ,
+                        'Arrival Station : ',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       Text(
-                            reservation.bookedRoute.arrivalStation.name,
+                        reservation.bookedRoute.arrivalStation.name,
                         style: style,
                       )
                     ],
@@ -82,11 +97,11 @@ class ReservationCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
                         TextButton(
-                            onPressed: delete,
-                            child: Text("Delete Booking")),
+                            onPressed: delete, child: Text("Delete Booking",style:
+                          style)),
                         SizedBox(width: 20),
                         TextButton(
-                            onPressed: null, child: Text("Modify Booking")),
+                            onPressed: null, child: Text("Modify Booking",style: style,)),
                         SizedBox(width: 5)
                       ],
                     ),
