@@ -7,9 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:first_from_zero/models/RouteModel.dart';
 import 'package:intl/intl.dart';
-
-import 'BookRoute.dart';
 import 'Layout.dart';
+
+typedef int RouteSorter(RouteModel a, RouteModel b);
 
 class SearchRoutes extends StatefulWidget {
   final LayoutState parentState;
@@ -22,6 +22,17 @@ class SearchRoutes extends StatefulWidget {
 class _SearchState extends State<SearchRoutes>
     with AutomaticKeepAliveClientMixin<SearchRoutes> {
   final LayoutState parent;
+  bool ascending = true;
+  RouteSorter sort = (a,b)=>a.id.compareTo(b.id);
+  final List<String> dropValues = [
+    'Id',
+    'Departure Station',
+    'Arrival Station',
+    'Departure Time',
+    'Arrival Time',
+    'Seats Left'
+  ];
+  String selected = 'Id';
 
   _SearchState({this.parent});
 
@@ -136,10 +147,77 @@ class _SearchState extends State<SearchRoutes>
           ),
         ),
         Padding(
-          padding: EdgeInsets.all(15),
+          padding: EdgeInsets.only(top: 5),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
+              Column(children: [
+                Row(children: [
+                  Text("Ascending",
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Checkbox(
+                      value: ascending,
+                      onChanged: (value) {
+                        setState(() {
+                          ascending = !ascending;
+                          _routes.sort(sort);
+                        });
+                      })
+                ]),
+                Column(children: [
+                  Text("Sort by",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  SizedBox(width: 10),
+                  DropdownButton<String>(
+                      onChanged: (value) {
+                        if (_routes != null)
+                          switch (value) {
+                            case 'Id':
+                              sort = (a, b) => ascending
+                                  ? a.id.compareTo(b.id)
+                                  : -a.id.compareTo(b.id);
+                              break;
+                            case 'Departure Station':
+                              sort = (a, b) => ascending
+                                  ? a.departureStation.id
+                                      .compareTo(b.departureStation.id)
+                                  : -b.departureStation.id
+                                      .compareTo(a.departureStation.id);
+                              break;
+                            case 'Arrival Station':
+                              sort = (a, b) => ascending ? a.arrivalStation.id
+                                  .compareTo(b.arrivalStation.id) : b.arrivalStation.id
+                                  .compareTo(a.arrivalStation.id);
+                              break;
+                            case 'Departure Time':
+                              sort = (a, b) => ascending ?
+                              a.departureTime.compareTo(b.departureTime):b.departureTime.compareTo(a.departureTime);
+                              break;
+                            case 'Arrival Time':
+                            sort = (a, b) => ascending ?
+                                  a.arrivalTime.compareTo(b.arrivalTime):b.arrivalTime.compareTo(a.arrivalTime);
+                              break;
+                            case 'Seats Left':
+                              sort = (a, b) => ascending ?
+                              a.seatsLeft.compareTo(b.seatsLeft):b.seatsLeft.compareTo(a.seatsLeft);
+                              break;
+                          }
+                        _routes.sort(sort);
+                        setState(() {
+                          selected = value;
+                        });
+                      },
+                      value: selected,
+                      items: dropValues
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList())
+                ])
+              ]),
               Flexible(
                 child: Column(
                   children: [
@@ -192,7 +270,7 @@ class _SearchState extends State<SearchRoutes>
                                     BorderRadius.all(Radius.circular(15))),
                             elevation: 10,
                           )),
-                    ),
+                    )
                   ],
                 ),
               ),
@@ -301,8 +379,8 @@ class RouteCard extends StatelessWidget {
                     padding: EdgeInsets.only(top: 10),
                     child: Row(children: [
                       Text("Seats left: " + route.seatsLeft.toString(),
-                      style: TextStyle(fontWeight: FontWeight.bold,
-                      fontSize: 18))
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 18))
                     ]))
               ]),
               Column(children: [

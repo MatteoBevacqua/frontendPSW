@@ -225,6 +225,7 @@ class Model {
       return wrapper.response == 200;
     } catch (e) {
       print(e);
+      return false;
     }
   }
 
