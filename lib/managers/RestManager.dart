@@ -35,7 +35,7 @@ class RestManager {
         contentType = "application/x-www-form-urlencoded";
         formattedBody = body.keys.map((key) => "$key=${body[key]}").join("&");
       }
-
+      print(formattedBody);
       // setting headers
       Map<String, String> headers = Map();
       headers[HttpHeaders.contentTypeHeader] = contentType;
@@ -60,6 +60,7 @@ class RestManager {
           response = await put(
             uri,
             headers: headers,
+            body: formattedBody
           );
           break;
         case "delete":
@@ -88,8 +89,8 @@ class RestManager {
   }
 
   Future<String> makePutRequest(String serverAddress, String servicePath,
-      [Map<String, String> value, TypeHeader type]) async {
-    return _makeRequest(serverAddress, servicePath, "put", type, value: value);
+  { Map<String, String> value,dynamic body, TypeHeader type,HTTPResponseWrapper wrapper}) async {
+    return _makeRequest(serverAddress, servicePath, "put", TypeHeader.json, body: body, value: value,wrapper: wrapper);
   }
 
   Future<String> makeDeleteRequest(String serverAddress, String servicePath,{HTTPResponseWrapper wrapper,

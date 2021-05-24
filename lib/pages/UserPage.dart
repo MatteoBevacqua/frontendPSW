@@ -4,6 +4,7 @@ import 'package:first_from_zero/models/SeatModel.dart';
 import 'package:first_from_zero/myWidgets/ReservationCard.dart';
 import 'package:first_from_zero/support/Global.dart';
 import 'package:first_from_zero/support/Model.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../myWidgets/CircularIconButton.dart';
 import '../myWidgets/InputField.dart';
@@ -53,7 +54,8 @@ class _UserState extends State<UserPage>
   }
 
   Widget modifyReservation(Reservation r) {
-    print(r.reservedSeats);
+    GlobalData.toAdd.clear();
+    GlobalData.toRemove.clear();
     return Scaffold(
         appBar: AppBar(
           title: Text("Edit reservation"),
@@ -62,14 +64,25 @@ class _UserState extends State<UserPage>
           RouteCard(route: r.bookedRoute),
           SizedBox(height: 20),
           TextButton.icon(
-              onPressed: () => (){
-                for(SeatModel s in GlobalData.toAdd){
-                  if(r.reservedSeats.contains(s)) GlobalData.toAdd.remove(s);
-                }
-                for(SeatModel s in GlobalData.toAdd){
-                  if(!r.reservedSeats.contains(s)) GlobalData.toRemove.remove(s);
-                }
-                Model.sharedInstance.modifyReservation(r);
+              onPressed: () async {
+                print("pressed");
+                for (SeatModel s in GlobalData.toAdd)
+                  if (r.reservedSeats.contains(s)) GlobalData.toAdd.remove(s);
+                for (SeatModel s in GlobalData.toAdd)
+                  if (!r.reservedSeats.contains(s))
+                    GlobalData.toRemove.remove(s);
+                var exitCode = await Model.sharedInstance.modifyReservation(r);
+                Text toShow;
+                if (exitCode)
+                  toShow = Text("Modification successful!");
+                else
+                  toShow = Text(
+                      "Some of the seats you wanted to add have already been booked!");
+                showDialog(
+                    context: this.context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(title: toShow);
+                    });
               },
               icon: Icon(Icons.edit, color: Theme.of(context).primaryColor),
               style: TextButton.styleFrom(padding: const EdgeInsets.all(16.0)),
@@ -88,7 +101,7 @@ class _UserState extends State<UserPage>
                     crossAxisCount: 4),
                 itemBuilder: (BuildContext context, int index) {
                   bool byMe = r.reservedSeats.contains(resSeats[index]);
-                  print(byMe.toString() + "  " + resSeats[index].id.toString());
+                  //   print(byMe.toString() + "  " + resSeats[index].id.toString());
                   return TrainSeat(
                       seat: resSeats[index],
                       selectedByMe: byMe,
@@ -111,11 +124,10 @@ class _UserState extends State<UserPage>
               resSeats = await Model.sharedInstance
                   .getAvailableSeatsOnRoute(_myRes[index].bookedRoute);
               resSeats.sort((a, b) => a.id.compareTo(b.id));
-              showDialog(
-                  context: this.context,
-                  builder: (BuildContext context) {
-                    return modifyReservation(_myRes[index]);
-                  });
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => modifyReservation(_myRes[index])));
             },
             delete: () async {
               bool value = await Model.sharedInstance.deleteReservation(
@@ -123,6 +135,9 @@ class _UserState extends State<UserPage>
                   wrapper: HTTPResponseWrapper());
               Text toShow;
               if (value) {
+                if (GlobalData.currentlySelected != null)
+                  GlobalData.currentlySelected.seatsLeft +=
+                      _myRes[index].reservedSeats.length;
                 _myRes[index].bookedRoute.seatsLeft +=
                     _myRes[index].reservedSeats.length;
                 toShow = Text("Reservation deleted successfully!");

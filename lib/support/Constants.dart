@@ -18,6 +18,7 @@ class Constants {
   static final String GET_RESERVATIONS = "/reservations/all";
   static final String MAKE_RESERVATION  = "/reservations";
   static final String DELETE_RESERVATION = "/reservations";
+  static final String RESERVATIONS = "/reservations";
   static final String UPDATE_SEATS_BACKGROUND = "/routes/seatsLeft";
   // requests
 
