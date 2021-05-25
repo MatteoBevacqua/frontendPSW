@@ -6,11 +6,11 @@ import 'package:first_from_zero/models/SeatModel.dart';
 import 'Passenger.dart';
 
 class SeatDTO {
-  SeatDTO({this.id});
+  SeatDTO({this.id,this.pricePaid});
 
   int id;
-
-  Map<String, dynamic> toJson() => {'id': id};
+  int pricePaid;
+  Map<String, dynamic> toJson() => {'id': id,'pricePaid':pricePaid};
 
   String toString() {
     return this.toJson().toString();
@@ -40,7 +40,7 @@ class Reservation {
     Map<String, dynamic> params = Map();
     params['route'] = RouteDTO(id: this.bookedRoute.id).toJson();
     List<SeatDTO> seatDTOS =
-        reservedSeats.map((e) => SeatDTO(id: e.id)).toList();
+        reservedSeats.map((e) => SeatDTO(id: e.id,pricePaid: e.pricePaid)).toList();
     params['seats'] = List<dynamic>.from(seatDTOS.map((e) => e));
     return params;
   }

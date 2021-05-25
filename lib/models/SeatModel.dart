@@ -14,7 +14,7 @@ class SeatModel {
   int adultPrice;
 
   int childrenPrice;
-
+  int pricePaid = 0;
   FacingDirection direction;
 
   int trainId;
