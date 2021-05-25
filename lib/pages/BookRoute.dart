@@ -201,6 +201,7 @@ class _SeatState extends State<TrainSeat> {
           onPressed: (selected && !selectedByMe)
               ? null
               : () {
+                  print(GlobalData.selectedToBook);
                   setState(() {
                     GlobalData.selectedToBook.add(seatModel);
                     setState(() {
@@ -211,11 +212,11 @@ class _SeatState extends State<TrainSeat> {
                       } else {
                         selectedByMe = false;
                         selected = false;
+                        GlobalData.selectedToBook.remove(seatModel);
                         if (modifying) GlobalData.toRemove.add(seatModel);
                       }
                     });
                   });
-                  print(selected.toString() +" " + selectedByMe.toString());
                 },
           child: seatModel.direction == FacingDirection.OPPOSITE
               ? Transform.rotate(angle: 180 * math.pi / 180, child: icon)

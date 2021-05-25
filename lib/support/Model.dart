@@ -138,14 +138,16 @@ class Model {
     if (from != null) params['startDate'] = from.toIso8601String();
     if (to != null) params['endDate'] = to.toIso8601String();
     if (depCity != '' && arrCity != '') {
-      endpoint = Constants.ROUTE_BY_ALL;
+      endpoint = Constants.ROUTE_BY_BOTH;
       params["departure"] = depCity;
       params["arrival"] = arrCity;
-    } else {
+    } else if (depCity != '' || arrCity != '') {
       params["city"] = arrCity == '' ? depCity : arrCity;
       endpoint = arrCity == ''
           ? Constants.ROUTE_BY_DEPARTURE
           : Constants.ROUTE_BY_ARRIVAL;
+    } else {
+      endpoint = Constants.ALL_ROUTES;
     }
     print(endpoint);
     try {
@@ -155,7 +157,7 @@ class Model {
           .map((i) => RouteModel.fromJson(i))
           .toList());
     } catch (e) {
-      print("error + $e");
+      print("$e");
       return null; // not the best solution
     }
   }
