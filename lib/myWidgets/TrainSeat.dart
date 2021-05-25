@@ -40,9 +40,7 @@ class _SeatState extends State<TrainSeat> {
     TextButton.styleFrom(backgroundColor: Colors.transparent),
     TextButton.styleFrom(backgroundColor: Colors.amberAccent)
   ];
-  ButtonStyle styleChild =
-          TextButton.styleFrom(backgroundColor: Colors.transparent),
-      styleAdult = TextButton.styleFrom(backgroundColor: Colors.transparent);
+
   int childIndex = 0, adultIndex = 0;
 
   @override
@@ -73,6 +71,7 @@ class _SeatState extends State<TrainSeat> {
                     } else {
                       selectedByMe = false;
                       selected = false;
+                      childIndex = adultIndex = 0;
                       if (modifying)
                         GlobalData.toRemove.add(seatModel);
                       else
@@ -102,7 +101,7 @@ class _SeatState extends State<TrainSeat> {
                   child: Text("Children",
                       style: const TextStyle(
                           color: Colors.black, fontWeight: FontWeight.bold)),
-                  style: styleChild,
+                  style: styles[childIndex],
                   onPressed: (selected && !selectedByMe)
                       ? null
                       : () {
@@ -110,8 +109,8 @@ class _SeatState extends State<TrainSeat> {
                           seatModel.pricePaid = seatModel.childrenPrice;
                           if (modifying) GlobalData.priceChanged.add(seatModel);
                           setState(() {
-                            styleChild = styles[(childIndex + 1) % 2];
-                            styleAdult = styles[0];
+                            childIndex= (childIndex + 1) % 2;
+                            adultIndex = 0;
                           });
                         }),
               Text(seatModel.childrenPrice.toString() + "€")
@@ -123,7 +122,7 @@ class _SeatState extends State<TrainSeat> {
                   child: Text("Adult",
                       style: const TextStyle(
                           color: Colors.black, fontWeight: FontWeight.bold)),
-                  style: styleAdult,
+                  style: styles[adultIndex],
                   onPressed: (selected && !selectedByMe)
                       ? null
                       : () {
@@ -131,8 +130,8 @@ class _SeatState extends State<TrainSeat> {
                           seatModel.pricePaid = seatModel.adultPrice;
                           if (modifying) GlobalData.priceChanged.add(seatModel);
                           setState(() {
-                            styleAdult = styles[(childIndex + 1) % 2];
-                            styleChild = styles[0];
+                            adultIndex= (childIndex + 1) % 2;
+                            childIndex = 0;
                           });
                         }),
               Text(seatModel.adultPrice.toString() + "€")
