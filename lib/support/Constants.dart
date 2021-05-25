@@ -15,7 +15,7 @@ class Constants {
   static final String REQUEST_LOGOUT = "/auth/realms/" + REALM + "/protocol/openid-connect/logout";
   static final String CITY_AUTOFILL_ENDPOINT = "/cities/search/like";
   static final String GET_SEATS = "/seats/byRouteWithSelectionStatus";
-  static final String GET_RESERVATIONS = "/reservations/all";
+  static final String GET_RESERVATIONS = "/all";
   static final String MAKE_RESERVATION  = "/reservations";
   static final String DELETE_RESERVATION = "/reservations";
   static final String RESERVATIONS = "/reservations";

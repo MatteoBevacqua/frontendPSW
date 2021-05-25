@@ -6,5 +6,5 @@ class GlobalData {
   static bool userHasAnAccount = false;
   static bool userIsLoggedIn = false;
   static List<SeatModel> selectedToBook = List.empty(growable: true), toAdd = List.empty(growable: true),
-      toRemove = List.empty(growable: true);
+      toRemove = List.empty(growable: true),priceChanged=List.empty(growable: true);
 }

@@ -2,6 +2,7 @@ import 'package:first_from_zero/managers/RestManager.dart';
 import 'package:first_from_zero/models/Reservation.dart';
 import 'package:first_from_zero/models/SeatModel.dart';
 import 'package:first_from_zero/myWidgets/ReservationCard.dart';
+import 'package:first_from_zero/myWidgets/TrainSeat.dart';
 import 'package:first_from_zero/support/Global.dart';
 import 'package:first_from_zero/support/Model.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,7 +10,6 @@ import 'package:flutter/material.dart';
 import '../myWidgets/CircularIconButton.dart';
 import '../myWidgets/InputField.dart';
 import '../models/Passenger.dart';
-import 'BookRoute.dart';
 import 'SearchRoutes.dart';
 
 class UserPage extends StatefulWidget {
@@ -161,10 +161,25 @@ class _UserState extends State<UserPage>
     return Scaffold(
       body: Column(mainAxisSize: MainAxisSize.min, children: [
         Padding(
-          padding: EdgeInsets.only(top: 15, bottom: 10),
-          child: Text("My bookings",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-        ),
+            padding: EdgeInsets.only(top: 15, bottom: 10),
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text("My bookings",
+                      style:
+                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                  TextButton.icon(
+                      onPressed: () {
+                        Model.sharedInstance.logOut();
+                        setState(() {
+                          GlobalData.userIsLoggedIn = false;
+                        });
+                        print("bruh");
+                      },
+                      icon: Icon(Icons.logout, color: Colors.black),
+                      label: Text("Logout",
+                          style: TextStyle(color: Colors.black, fontSize: 19)))
+                ])),
         _myRes == null ? CircularProgressIndicator() : showRes()
       ]),
     );
@@ -226,16 +241,6 @@ class _UserState extends State<UserPage>
                                 label: Text(
                                     "Don't have an account ?\n     register"))
                           ])),
-                  Center(
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                      child: _adding
-                          ? CircularProgressIndicator()
-                          : _justAddedUser != null
-                              ? Text("Registered successfully")
-                              : SizedBox.shrink(),
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -318,7 +323,7 @@ class _UserState extends State<UserPage>
                       child: _adding
                           ? CircularProgressIndicator()
                           : _justAddedUser != null
-                              ? Text("just_added")
+                              ? Text("Welcome!")
                               : SizedBox.shrink(),
                     ),
                   ),
@@ -334,7 +339,7 @@ class _UserState extends State<UserPage>
   void _getMyReservations() {
     Model.sharedInstance.getReservations().then((value) => setState(() {
           _myRes = value;
-          _myRes.sort((a, b) => a.id.compareTo(b.id));
+          if (_myRes != null) _myRes.sort((a, b) => a.id.compareTo(b.id));
         }));
   }
 
@@ -347,7 +352,16 @@ class _UserState extends State<UserPage>
         .then((result) {
       setState(() {
         GlobalData.userIsLoggedIn = result == LogInResult.logged;
-        if (GlobalData.userIsLoggedIn) _getMyReservations();
+        if (GlobalData.userIsLoggedIn)
+          _getMyReservations();
+        else
+          showDialog(
+              context: this.context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                    title: Text(
+                        "Login failed,check your credentials or register\nif you don't have an account yet!"));
+              });
       });
     });
   }
@@ -394,6 +408,7 @@ class _UserState extends State<UserPage>
     Model.sharedInstance.addUser(_justAddedUser).then((result) {
       setState(() {
         _adding = false;
+        if (result != null) GlobalData.userHasAnAccount = true;
       });
     });
   }

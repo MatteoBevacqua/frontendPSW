@@ -2,14 +2,13 @@ import 'dart:async';
 
 import 'package:first_from_zero/managers/RestManager.dart';
 import 'package:first_from_zero/models/Reservation.dart';
+import 'package:first_from_zero/myWidgets/TrainSeat.dart';
 import 'package:first_from_zero/pages/SearchRoutes.dart';
 import 'package:first_from_zero/models/SeatModel.dart';
 import 'package:first_from_zero/support/Global.dart';
 import 'package:first_from_zero/support/Model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
-import 'package:first_from_zero/support/Utils.dart';
 
 class BookRoute extends StatefulWidget {
   @override
@@ -41,12 +40,11 @@ class _BookingState extends State<BookRoute> {
     if (GlobalData.currentlySelected != null) _updateSeatsAndRebuild();
   }
 
-
   void _bookSeats() async {
     Text toShow;
     bool successful = false;
     print(GlobalData.selectedToBook);
-    for(SeatModel s in GlobalData.selectedToBook) {
+    for (SeatModel s in GlobalData.selectedToBook) {
       print(s.pricePaid);
       if (s.pricePaid == 0) {
         showDialog(
@@ -166,119 +164,3 @@ class _BookingState extends State<BookRoute> {
   }
 }
 
-class TrainSeat extends StatefulWidget {
-  @override
-  bool operator ==(Object other) => other is TrainSeat && other.seat == seat;
-
-  final SeatModel seat;
-  bool selected = false, selectedByMe = false, modifying = false;
-
-  TrainSeat({this.seat, this.selected, this.selectedByMe, this.modifying}) {
-    this.selected = seat.isBooked;
-    if (selectedByMe == null) selectedByMe = false;
-    if (modifying == null) modifying = false;
-  }
-
-  _SeatState createState() => _SeatState(
-      seatModel: seat,
-      selected: seat.isBooked,
-      selectedByMe: selectedByMe,
-      modifying: modifying);
-}
-
-class _SeatState extends State<TrainSeat> {
-  bool selected = false, selectedByMe = false, modifying = false;
-  SeatModel seatModel;
-
-  _SeatState(
-      {this.seatModel, this.selected, this.selectedByMe, this.modifying});
-
-  Color color;
-  final Icon icon = Icon(Icons.event_seat_sharp, color: Colors.black);
-  TextStyle descr = TextStyle(fontWeight: FontWeight.bold, fontSize: 15);
-  ButtonStyle styleChild,styleAdult = TextButton.styleFrom(backgroundColor: Colors.transparent);
-
-  @override
-  Widget build(BuildContext context) {
-    if (selected && !selectedByMe) {
-      color = Colors.amber;
-    } else {
-      color = selectedByMe ? Colors.white : Colors.green;
-    }
-
-    return Column(children: [
-      RawMaterialButton(
-          constraints: BoxConstraints.expand(width: 50, height: 50),
-          fillColor: color,
-          shape: CircleBorder(),
-          onPressed: (selected && !selectedByMe)
-              ? null
-              : () {
-                  setState(() {
-                    if (!selectedByMe) {
-                      GlobalData.selectedToBook.add(seatModel);
-                      selectedByMe = true;
-                      selected = true;
-                      if (modifying) GlobalData.toAdd.add(seatModel);
-                    } else {
-                      selectedByMe = false;
-                      selected = false;
-                      GlobalData.selectedToBook.remove(seatModel);
-                      if (modifying) GlobalData.toRemove.add(seatModel);
-                    }
-                  });
-                  print(GlobalData.selectedToBook);
-          },
-          child: seatModel.direction == FacingDirection.OPPOSITE
-              ? Transform.rotate(angle: 180 * math.pi / 180, child: icon)
-              : icon),
-      SizedBox(height: 5),
-      Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Text("Seat Class: "),
-          Text(
-              seatModel.seatClass
-                  .toString()
-                  .substring(10)
-                  .toLowerCase()
-                  .capitalize(),
-              style: descr)
-        ]),
-        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Column(
-            children: [
-              TextButton(
-                  child: Text("Children",
-                      style: const TextStyle(
-                          color: Colors.black, fontWeight: FontWeight.bold)),
-                  style:styleChild,
-                  onPressed: () {
-                    seatModel.pricePaid = seatModel.childrenPrice;
-                    setState(() {
-                      styleChild =  TextButton.styleFrom(backgroundColor: Colors.amberAccent);
-                    });
-                  }),
-              Text(seatModel.childrenPrice.toString() + "€")
-            ],
-          ),
-          Column(
-            children: [
-              TextButton(
-                  child: Text("Adult",
-                      style: const TextStyle(
-                          color: Colors.black, fontWeight: FontWeight.bold)),
-                  style: styleAdult,
-                  onPressed: () {
-                    seatModel.pricePaid = seatModel.adultPrice;
-                    setState(() {
-                      styleAdult = TextButton.styleFrom(backgroundColor: Colors.amberAccent);
-                    });
-                  }),
-              Text(seatModel.adultPrice.toString() + "€")
-            ],
-          )
-        ])
-      ]),
-    ]);
-  }
-}

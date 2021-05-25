@@ -35,7 +35,6 @@ class RestManager {
         contentType = "application/x-www-form-urlencoded";
         formattedBody = body.keys.map((key) => "$key=${body[key]}").join("&");
       }
-      print(formattedBody);
       // setting headers
       Map<String, String> headers = Map();
       headers[HttpHeaders.contentTypeHeader] = contentType;

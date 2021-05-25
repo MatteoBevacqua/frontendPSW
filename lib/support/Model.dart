@@ -62,8 +62,8 @@ class Model {
   Future<List<Reservation>> getReservations() async {
     try {
       var res = List<Reservation>.from(json
-          .decode(await _restManager.makeGetRequest(
-              Constants.SERVER_ADDRESS, Constants.GET_RESERVATIONS, null))
+          .decode(await _restManager.makeGetRequest(Constants.SERVER_ADDRESS,
+              Constants.RESERVATIONS + Constants.GET_RESERVATIONS))
           .map((i) => Reservation.fromJson(i))
           .toList());
       return res;
