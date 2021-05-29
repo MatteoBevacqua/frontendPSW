@@ -12,26 +12,39 @@ class TrainSeat extends StatefulWidget {
 
   final SeatModel seat;
   bool selected = false, selectedByMe = false, modifying = false;
+  int child, adult;
 
-  TrainSeat({this.seat, this.selected, this.selectedByMe, this.modifying}) {
+  TrainSeat(
+      {this.seat,
+      this.selected,
+      this.selectedByMe = false,
+      this.modifying = false,
+      this.child = 0,
+      this.adult = 0}) {
     this.selected = seat.isBooked;
-    if (selectedByMe == null) selectedByMe = false;
-    if (modifying == null) modifying = false;
   }
 
   _SeatState createState() => _SeatState(
       seatModel: seat,
       selected: seat.isBooked,
       selectedByMe: selectedByMe,
-      modifying: modifying);
+      modifying: modifying,
+      adultIndex: adult,
+      childIndex: child);
 }
 
 class _SeatState extends State<TrainSeat> {
-  bool selected = false, selectedByMe = false, modifying = false;
+  bool selected, selectedByMe, modifying;
+
   SeatModel seatModel;
 
   _SeatState(
-      {this.seatModel, this.selected, this.selectedByMe, this.modifying});
+      {this.seatModel,
+      this.selected,
+      this.selectedByMe,
+      this.modifying,
+      this.adultIndex,
+      this.childIndex});
 
   Color color;
   final Icon icon = Icon(Icons.event_seat_sharp, color: Colors.black);
@@ -41,7 +54,7 @@ class _SeatState extends State<TrainSeat> {
     TextButton.styleFrom(backgroundColor: Colors.amberAccent)
   ];
 
-  int childIndex = 0, adultIndex = 0;
+  int childIndex, adultIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -56,28 +69,19 @@ class _SeatState extends State<TrainSeat> {
           constraints: BoxConstraints.expand(width: 50, height: 50),
           fillColor: color,
           shape: CircleBorder(),
-          onPressed: (selected && !selectedByMe)
+          onPressed: (!selectedByMe)
               ? null
               : () {
                   setState(() {
-                    print(GlobalData.selectedToBook);
-                    if (!selectedByMe) {
-                      selectedByMe = true;
-                      selected = true;
-                      if (modifying)
-                        GlobalData.toAdd.add(seatModel);
-                      else
-                        GlobalData.selectedToBook.add(seatModel);
-                    } else {
-                      selectedByMe = false;
-                      selected = false;
-                      childIndex = adultIndex = 0;
-                      if (modifying)
-                        GlobalData.toRemove.add(seatModel);
-                      else
-                        GlobalData.selectedToBook.remove(seatModel);
-                    }
+                    if (!modifying)
+                      GlobalData.selectedToBook.remove(seatModel);
+                    else
+                      GlobalData.currentBooking.remove(seatModel);
+                    selectedByMe = false;
+                    selected = false;
+                    childIndex = adultIndex = seatModel.pricePaid = 0;
                   });
+                  print(GlobalData.currentBooking);
                 },
           child: seatModel.direction == FacingDirection.OPPOSITE
               ? Transform.rotate(angle: 180 * math.pi / 180, child: icon)
@@ -105,13 +109,25 @@ class _SeatState extends State<TrainSeat> {
                   onPressed: (selected && !selectedByMe)
                       ? null
                       : () {
-                          if (!selectedByMe) selectedByMe = !selectedByMe;
+                          if (!selectedByMe) {
+                            selectedByMe = true;
+                            if (modifying) {
+                              GlobalData.currentBooking.forceAdd(seatModel);
+                            } else
+                              GlobalData.selectedToBook.add(seatModel);
+                          } else {
+                            if (modifying) {
+                              SeatModel copy = seatModel.deepCopy();
+                              copy.pricePaid = seatModel.childrenPrice;
+                              GlobalData.currentBooking.forceAdd(copy);
+                            }
+                          }
                           seatModel.pricePaid = seatModel.childrenPrice;
-                          if (modifying) GlobalData.priceChanged.add(seatModel);
                           setState(() {
-                            childIndex= (childIndex + 1) % 2;
+                            childIndex = 1;
                             adultIndex = 0;
                           });
+                          print(GlobalData.currentBooking);
                         }),
               Text(seatModel.childrenPrice.toString() + "€")
             ],
@@ -126,13 +142,25 @@ class _SeatState extends State<TrainSeat> {
                   onPressed: (selected && !selectedByMe)
                       ? null
                       : () {
-                          if (!selectedByMe) selectedByMe = !selectedByMe;
+                          if (!selectedByMe) {
+                            selectedByMe = true;
+                            if (modifying) {
+                              GlobalData.currentBooking.forceAdd(seatModel);
+                            } else
+                              GlobalData.selectedToBook.add(seatModel);
+                          } else {
+                            if (modifying) {
+                              SeatModel copy = seatModel.deepCopy();
+                              copy.pricePaid = seatModel.adultPrice;
+                              GlobalData.currentBooking.forceAdd(copy);
+                            }
+                          }
                           seatModel.pricePaid = seatModel.adultPrice;
-                          if (modifying) GlobalData.priceChanged.add(seatModel);
                           setState(() {
-                            adultIndex= (childIndex + 1) % 2;
+                            adultIndex = 1;
                             childIndex = 0;
                           });
+                          print(GlobalData.currentBooking);
                         }),
               Text(seatModel.adultPrice.toString() + "€")
             ],

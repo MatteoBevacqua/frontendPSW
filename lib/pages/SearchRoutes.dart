@@ -23,7 +23,14 @@ class _SearchState extends State<SearchRoutes>
     with AutomaticKeepAliveClientMixin<SearchRoutes> {
   final LayoutState parent;
   bool ascending = true;
-  RouteSorter sort = (a,b)=>a.id.compareTo(b.id);
+  RouteSorter sort;
+
+  @override
+  initState(){
+    sort =  (a, b) => ascending
+        ? a.id.compareTo(b.id)
+        : -a.id.compareTo(b.id);
+  }
   final List<String> dropValues = [
     'Id',
     'Departure Station',
@@ -294,7 +301,7 @@ class _SearchState extends State<SearchRoutes>
   void setSelectedInCard(RouteModel route) {
     this.setSelected(route);
     GlobalData.currentlySelected = route;
-    GlobalData.selectedToBook = List.empty(growable: true);
+    GlobalData.selectedToBook = Set();
     this.parent.goToBooking();
   }
 

@@ -13,3 +13,10 @@ extension StringExtension on String {
     return "${this[0].toUpperCase()}${this.substring(1)}";
   }
 }
+
+extension CustomAdd<T> on Set<T>{
+  void forceAdd(T element){
+    this.remove(element);
+    this.add(element);
+  }
+}

@@ -75,6 +75,7 @@ class _BookingState extends State<BookRoute> {
     await Model.sharedInstance.postReservation(reservation, wrapper);
     switch (wrapper.response) {
       case 406:
+
         {
           toShow = Text(
               "You already made a reservation for this route,\nif you want to add or remove seats\nedit the existing one from the user page");
@@ -95,13 +96,21 @@ class _BookingState extends State<BookRoute> {
         break;
       default:
         {
+           Model.sharedInstance
+              .getById(GlobalData.currentlySelected.id)
+              .then((value) => {
+                    setState(() {
+                      GlobalData.currentlySelected = value;
+                    })
+                  });
           successful = true;
           toShow = Text(
               "Reservation placed successfully!\nYou can edit or delete it from the user page on your right");
-          GlobalData.selectedToBook.clear();
         }
         break;
     }
+    _updateSeatsAndRebuild();
+    GlobalData.selectedToBook.clear();
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -163,4 +172,3 @@ class _BookingState extends State<BookRoute> {
         ));
   }
 }
-

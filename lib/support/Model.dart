@@ -6,6 +6,7 @@ import 'package:first_from_zero/models/Reservation.dart';
 import 'package:first_from_zero/models/RouteModel.dart';
 import 'package:first_from_zero/models/SeatModel.dart';
 import 'package:first_from_zero/support/Global.dart';
+import 'package:flutter/cupertino.dart';
 import 'Constants.dart';
 import 'package:first_from_zero/managers/RestManager.dart';
 import 'package:first_from_zero/models/AuthenticationData.dart';
@@ -56,6 +57,20 @@ class Model {
     } catch (e) {
       print(e);
       return LogInResult.error_unknown;
+    }
+  }
+
+  Future<RouteModel> getById(int routeId) async {
+    Map<String, String> params = Map();
+    params['routeId'] = routeId.toString();
+    try {
+      return RouteModel.fromJson(json.decode(await _restManager.makeGetRequest(
+          Constants.SERVER_ADDRESS,
+          Constants.ROUTES + Constants.ROUTE_BY_ID,
+          params)));
+    } catch (e) {
+      print(e);
+      return null;
     }
   }
 
@@ -209,18 +224,52 @@ class Model {
 
   Future<bool> modifyReservation(Reservation r) async {
     try {
-      if (GlobalData.toRemove.length == r.reservedSeats.length &&
-          GlobalData.toAdd.isEmpty) {
+      if (GlobalData.currentRes != null &&
+          GlobalData.currentBooking.length == 0) {
         this.deleteReservation(r);
+        print("deleting res");
         return true;
       }
       Map<String, dynamic> body = Map();
       body['toModify'] = {'id': r.id};
-      body['toAdd'] =
-          List<dynamic>.from(GlobalData.toAdd.map((e) => {'id': e.id}));
-      body['toRemove'] =
-          List<dynamic>.from(GlobalData.toRemove.map((e) => {'id': e.id}));
+      print("curr:");
+      Set<SeatModel> toAdd = Set(), toRemove = Set(), toModify = Set();
+      print("\n\n");
+      print("prev");
+      print(r.reservedSeats);
+      print("after");
+      print(GlobalData.currentBooking);
+      GlobalData.currentBooking.forEach((seat) {
+        print(seat == null);
+        if (!r.reservedSeats.contains(seat)) {
+          toAdd.add(seat);
+        } else {
+          if (r.reservedSeats
+                  .firstWhere((element) => element.id == seat.id)
+                  .pricePaid !=
+              seat.pricePaid) {
+            toModify.add(seat);
+          }
+        }
+      });
+      r.reservedSeats.removeAll(GlobalData.currentBooking);
+      toRemove = r.reservedSeats;
+      print("here");
+      print("toAdd");
+      print(toAdd);
+      print("toModify");
+      print(toModify);
+      print("toRemove");
+      print(toRemove);
+      body['changePrice'] = List<dynamic>.from(
+          toModify.map((e) => {'id': e.id, 'pricePaid': e.pricePaid}));
+      body['toAdd'] = List<dynamic>.from(
+          toAdd.map((e) => {'id': e.id, 'pricePaid': e.pricePaid}));
+      body['toRemove'] = List<dynamic>.from(toRemove.map((e) => {'id': e.id}));
+      print(body.toString());
       HTTPResponseWrapper wrapper = HTTPResponseWrapper();
+      print("printing modified res");
+      print(body);
       await _restManager.makePutRequest(
           Constants.SERVER_ADDRESS, Constants.RESERVATIONS,
           body: body, wrapper: wrapper);
@@ -239,7 +288,7 @@ class Model {
           Constants.MAKE_RESERVATION,
           r.toPostableDTO(),
           wrapper: wrapper));
-      print(wrapper.response);
+      print(r.toPostableDTO().toString());
       return res;
     } catch (e) {
       return null; // not the best solution

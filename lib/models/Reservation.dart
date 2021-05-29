@@ -34,14 +34,14 @@ class Reservation {
   Passenger passenger;
   RouteModel bookedRoute;
   DateTime reservationBookingDate;
-  List<SeatModel> reservedSeats;
+  Set<SeatModel> reservedSeats;
 
   Map<String, dynamic> toPostableDTO() {
     Map<String, dynamic> params = Map();
-    params['route'] = RouteDTO(id: this.bookedRoute.id).toJson();
+    params['route'] ={'id':bookedRoute.id};
     List<SeatDTO> seatDTOS =
         reservedSeats.map((e) => SeatDTO(id: e.id,pricePaid: e.pricePaid)).toList();
-    params['seats'] = List<dynamic>.from(seatDTOS.map((e) => e));
+    params['seats'] = List<dynamic>.from(seatDTOS);
     return params;
   }
 
@@ -58,7 +58,7 @@ class Reservation {
         passenger: Passenger.fromJson(json['passenger']),
         bookedRoute: RouteModel.fromJson(json['bookedRoute']),
         reservationBookingDate: DateTime.parse(json['reservationBookingDate']),
-        reservedSeats: List<SeatModel>.from((json['reservedSeats'])
+        reservedSeats: Set<SeatModel>.from((json['reservedSeats'])
             .map((i) => SeatModel.fromJson(i, true))
             .toList()));
     return res;
