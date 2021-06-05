@@ -25,6 +25,8 @@ class Constants {
   static final String REQUEST_ADD_PASSENGER = "/users";
   static final String CITIES = "/cities";
   static final String REQUEST_GET_ROUTES = "/routes";
+  static final String REQUEST_GET_FASTEST_ROUTE = "/fastestRoute";
+
   static final String ROUTE_BY_ARRIVAL = "/search/byArrivalCity";
   static final String ROUTE_BY_DEPARTURE = "/search/byDepartureCity";
   static final String ROUTE_BY_BOTH = "/search/byDepartureAndArrivalCity";

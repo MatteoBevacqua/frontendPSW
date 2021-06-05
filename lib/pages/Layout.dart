@@ -5,6 +5,8 @@ import 'package:first_from_zero/pages/UserPage.dart';
 import 'package:flutter/material.dart';
 import 'package:first_from_zero/support/Constants.dart';
 
+import 'ShortestRoute.dart';
+
 class Layout extends StatefulWidget {
   final String title;
 
@@ -24,7 +26,7 @@ class LayoutState extends State<Layout> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-        length: 3,
+        length: 4,
         initialIndex: index,
         child: Builder(builder: (BuildContext context) {
           _controller = DefaultTabController.of(context);
@@ -36,11 +38,12 @@ class LayoutState extends State<Layout> {
                   Tab(
                       text: "Book your seats",
                       icon: Icon(Icons.shopping_cart_outlined)),
-                  Tab(text:"Login",icon: Icon(Icons.supervised_user_circle),)
+                  Tab(text:"Login",icon: Icon(Icons.supervised_user_circle)),
+                  Tab(text:"Quickest Route" , icon : Icon(Icons.fast_forward))
                 ]),
               ),
               body: TabBarView(
-                children: [SearchRoutes(parentState: this), BookRoute(),UserPage()],
+                children: [SearchRoutes(parentState: this), BookRoute(),UserPage(),ShortestRoute()],
               ));
         }));
   }

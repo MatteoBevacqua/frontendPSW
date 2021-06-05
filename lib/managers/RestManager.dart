@@ -69,7 +69,7 @@ class RestManager {
       if (wrapper != null) wrapper.response = response.statusCode;
       return response.body;
     } catch (err) {
-      print(err + "in rest");
+      print(err);
       if (wrapper != null) wrapper.response = -1;
       errorOccurred = true;
     }

@@ -80,6 +80,7 @@ class _UserState extends State<UserPage>
                     builder: (BuildContext context) {
                       return AlertDialog(title: toShow);
                     });
+                setState(() { });
               },
               icon: Icon(Icons.edit, color: Theme
                   .of(context)
@@ -142,7 +143,7 @@ class _UserState extends State<UserPage>
                       _myRes[index],
                       wrapper: HTTPResponseWrapper());
                   Text toShow;
-                  if (value) {
+                  if (value && GlobalData.currentlySelected!=null) {
                     Model.sharedInstance
                         .getById(GlobalData.currentlySelected.id)
                         .then((value) =>
@@ -185,7 +186,6 @@ class _UserState extends State<UserPage>
                         setState(() {
                           GlobalData.userIsLoggedIn = false;
                         });
-                        print("bruh");
                       },
                       icon: Icon(Icons.logout, color: Colors.black),
                       label: Text("Logout",
@@ -368,7 +368,6 @@ class _UserState extends State<UserPage>
 
   void _login() {
     if (!_checkFields(true)) return;
-    print(_emailFiledController.text + " " + _passwordController.text);
     Model.sharedInstance
         .logIn(
         _emailFiledController.text.trim(), _passwordController.text.trim())

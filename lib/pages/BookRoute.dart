@@ -19,6 +19,12 @@ class _BookingState extends State<BookRoute> {
   List<SeatModel> seats;
   HTTPResponseWrapper wrapper = HTTPResponseWrapper();
 
+  @override
+  // ignore: must_call_super
+  void initState() {
+    GlobalData.selectedToBook.clear();
+  }
+
   void _updateSeatsAndRebuild() async {
     await Model.sharedInstance
         .getAvailableSeatsOnRoute(GlobalData.currentlySelected)
@@ -43,7 +49,6 @@ class _BookingState extends State<BookRoute> {
   void _bookSeats() async {
     Text toShow;
     bool successful = false;
-    print(GlobalData.selectedToBook);
     for (SeatModel s in GlobalData.selectedToBook) {
       print(s.pricePaid);
       if (s.pricePaid == 0) {
@@ -75,7 +80,6 @@ class _BookingState extends State<BookRoute> {
     await Model.sharedInstance.postReservation(reservation, wrapper);
     switch (wrapper.response) {
       case 406:
-
         {
           toShow = Text(
               "You already made a reservation for this route,\nif you want to add or remove seats\nedit the existing one from the user page");
@@ -96,7 +100,7 @@ class _BookingState extends State<BookRoute> {
         break;
       default:
         {
-           Model.sharedInstance
+          Model.sharedInstance
               .getById(GlobalData.currentlySelected.id)
               .then((value) => {
                     setState(() {
@@ -116,11 +120,7 @@ class _BookingState extends State<BookRoute> {
         builder: (BuildContext context) {
           return AlertDialog(title: toShow);
         });
-    if (successful) {
-      GlobalData.currentlySelected.seatsLeft -=
-          GlobalData.selectedToBook.length;
-      setState(() {});
-    }
+    setState(() {});
   }
 
   @override

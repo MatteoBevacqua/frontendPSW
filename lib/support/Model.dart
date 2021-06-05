@@ -7,6 +7,7 @@ import 'package:first_from_zero/models/RouteModel.dart';
 import 'package:first_from_zero/models/SeatModel.dart';
 import 'package:first_from_zero/support/Global.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'Constants.dart';
 import 'package:first_from_zero/managers/RestManager.dart';
 import 'package:first_from_zero/models/AuthenticationData.dart';
@@ -146,10 +147,13 @@ class Model {
     }
   }
 
-  Future<List<RouteModel>> searchRoutes(
-      String depCity, String arrCity, DateTime from, DateTime to) async {
+  Future<List<RouteModel>> searchRoutes(String depCity, String arrCity,
+      DateTime from, DateTime to, String seatsLeft) async {
     Map<String, String> params = Map();
     String endpoint;
+    if (seatsLeft != '') {
+      params['seatsLeft'] = seatsLeft;
+    }
     if (from != null) params['startDate'] = from.toIso8601String();
     if (to != null) params['endDate'] = to.toIso8601String();
     if (depCity != '' && arrCity != '') {
@@ -224,23 +228,15 @@ class Model {
 
   Future<bool> modifyReservation(Reservation r) async {
     try {
-      if (GlobalData.currentRes != null &&
-          GlobalData.currentBooking.length == 0) {
+      print(GlobalData.currentBooking.toString() + " book");
+      if (GlobalData.currentBooking.length == 0) {
         this.deleteReservation(r);
-        print("deleting res");
         return true;
       }
       Map<String, dynamic> body = Map();
       body['toModify'] = {'id': r.id};
-      print("curr:");
       Set<SeatModel> toAdd = Set(), toRemove = Set(), toModify = Set();
-      print("\n\n");
-      print("prev");
-      print(r.reservedSeats);
-      print("after");
-      print(GlobalData.currentBooking);
       GlobalData.currentBooking.forEach((seat) {
-        print(seat == null);
         if (!r.reservedSeats.contains(seat)) {
           toAdd.add(seat);
         } else {
@@ -254,25 +250,25 @@ class Model {
       });
       r.reservedSeats.removeAll(GlobalData.currentBooking);
       toRemove = r.reservedSeats;
-      print("here");
-      print("toAdd");
-      print(toAdd);
-      print("toModify");
-      print(toModify);
-      print("toRemove");
-      print(toRemove);
       body['changePrice'] = List<dynamic>.from(
           toModify.map((e) => {'id': e.id, 'pricePaid': e.pricePaid}));
       body['toAdd'] = List<dynamic>.from(
           toAdd.map((e) => {'id': e.id, 'pricePaid': e.pricePaid}));
       body['toRemove'] = List<dynamic>.from(toRemove.map((e) => {'id': e.id}));
-      print(body.toString());
       HTTPResponseWrapper wrapper = HTTPResponseWrapper();
       print("printing modified res");
       print(body);
       await _restManager.makePutRequest(
           Constants.SERVER_ADDRESS, Constants.RESERVATIONS,
           body: body, wrapper: wrapper);
+      if (wrapper.response == 200 &&
+          GlobalData.currentlySelected != null &&
+          GlobalData.currentlySelected.id == r.bookedRoute.id) {
+        r.bookedRoute.id = GlobalData.currentlySelected.seatsLeft =
+            GlobalData.currentlySelected.seatsLeft +
+                toRemove.length -
+                toAdd.length;
+      }
       return wrapper.response == 200;
     } catch (e) {
       print(e);
@@ -329,5 +325,23 @@ class Model {
     } catch (e) {
       return false;
     }
+  }
+
+  Future<List<RouteModel>> fastestRoute(
+      String from, String to, TimeOfDay timeOfDay, DateTime day) async {
+    Map<String, String> params = Map();
+    params['from'] = from;
+    params['to'] = to;
+    params['hour'] = timeOfDay.hour.toString();
+    params['minutes'] = timeOfDay.minute.toString();
+    params['date'] = day.toIso8601String();
+    print("called");
+    var resp = await _restManager.makeGetRequest(
+        Constants.SERVER_ADDRESS, Constants.REQUEST_GET_FASTEST_ROUTE, params);
+    print(resp);
+    if (resp != '')
+      return List<RouteModel>.from(
+          json.decode(resp).map((i) => RouteModel.fromJson(i)).toList());
+    return null;
   }
 }

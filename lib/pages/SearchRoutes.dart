@@ -1,3 +1,4 @@
+import 'package:first_from_zero/myWidgets/InputField.dart';
 import 'package:first_from_zero/support/Global.dart';
 import 'package:first_from_zero/support/Model.dart';
 import 'package:first_from_zero/myWidgets/MyTypeAheadField.dart';
@@ -26,11 +27,10 @@ class _SearchState extends State<SearchRoutes>
   RouteSorter sort;
 
   @override
-  initState(){
-    sort =  (a, b) => ascending
-        ? a.id.compareTo(b.id)
-        : -a.id.compareTo(b.id);
+  initState() {
+    sort = (a, b) => ascending ? a.id.compareTo(b.id) : -a.id.compareTo(b.id);
   }
+
   final List<String> dropValues = [
     'Id',
     'Departure Station',
@@ -44,25 +44,25 @@ class _SearchState extends State<SearchRoutes>
   _SearchState({this.parent});
 
   DateTime _fromDate = DateTime.now(),
-      _toDate = DateTime.now().add(Duration(days: 365));
+      _toDate = DateTime.now().add(Duration(days: 2));
   RouteModel _selected;
   bool _searching = false;
   List<RouteModel> _routes;
   TextEditingController _leftTypeAhead = TextEditingController(),
-      _rightTypeAhead = TextEditingController();
+      _rightTypeAhead = TextEditingController(),
+      seatsLeftC = TextEditingController();
 
   void setSelected(RouteModel model) {
     this._selected = model;
     print("selected is " + _selected.toJson().toString());
   }
 
-  void _selectDate(BuildContext buildContext, bool first) async {
+  void _selectDate(bool first) async {
     final DateTime picked = await showDatePicker(
-        context: buildContext,
+        context: this.context,
         initialDate: DateTime.now(),
         firstDate: DateTime.now(),
         lastDate: DateTime.now().add(Duration(days: 365)));
-    print(picked.toIso8601String());
     if (picked != null)
       setState(() {
         if (first)
@@ -71,7 +71,6 @@ class _SearchState extends State<SearchRoutes>
           _toDate = picked;
       });
     _submitSearch();
-    print(_fromDate.toString() + " " + _toDate.toString() + " ??? ");
   }
 
   @override
@@ -189,25 +188,30 @@ class _SearchState extends State<SearchRoutes>
                               sort = (a, b) => ascending
                                   ? a.departureStation.id
                                       .compareTo(b.departureStation.id)
-                                  : -b.departureStation.id
+                                  : b.departureStation.id
                                       .compareTo(a.departureStation.id);
                               break;
                             case 'Arrival Station':
-                              sort = (a, b) => ascending ? a.arrivalStation.id
-                                  .compareTo(b.arrivalStation.id) : b.arrivalStation.id
-                                  .compareTo(a.arrivalStation.id);
+                              sort = (a, b) => ascending
+                                  ? a.arrivalStation.id
+                                      .compareTo(b.arrivalStation.id)
+                                  : b.arrivalStation.id
+                                      .compareTo(a.arrivalStation.id);
                               break;
                             case 'Departure Time':
-                              sort = (a, b) => ascending ?
-                              a.departureTime.compareTo(b.departureTime):b.departureTime.compareTo(a.departureTime);
+                              sort = (a, b) => ascending
+                                  ? a.departureTime.compareTo(b.departureTime)
+                                  : b.departureTime.compareTo(a.departureTime);
                               break;
                             case 'Arrival Time':
-                            sort = (a, b) => ascending ?
-                                  a.arrivalTime.compareTo(b.arrivalTime):b.arrivalTime.compareTo(a.arrivalTime);
+                              sort = (a, b) => ascending
+                                  ? a.arrivalTime.compareTo(b.arrivalTime)
+                                  : b.arrivalTime.compareTo(a.arrivalTime);
                               break;
                             case 'Seats Left':
-                              sort = (a, b) => ascending ?
-                              a.seatsLeft.compareTo(b.seatsLeft):b.seatsLeft.compareTo(a.seatsLeft);
+                              sort = (a, b) => ascending
+                                  ? a.seatsLeft.compareTo(b.seatsLeft)
+                                  : b.seatsLeft.compareTo(a.seatsLeft);
                               break;
                           }
                         _routes.sort(sort);
@@ -238,7 +242,7 @@ class _SearchState extends State<SearchRoutes>
                     Padding(
                       padding: EdgeInsets.all(15),
                       child: OutlinedButton.icon(
-                          onPressed: () => _selectDate(this.context, true),
+                          onPressed: () => _selectDate(true),
                           label: Text('Modify the starting date'),
                           icon: Icon(Icons.date_range),
                           style: OutlinedButton.styleFrom(
@@ -265,7 +269,7 @@ class _SearchState extends State<SearchRoutes>
                     Padding(
                       padding: EdgeInsets.all(15),
                       child: OutlinedButton.icon(
-                          onPressed: () => _selectDate(this.context, false),
+                          onPressed: () => _selectDate(false),
                           label: Text('Modify the ending date'),
                           icon: Icon(Icons.date_range),
                           style: OutlinedButton.styleFrom(
@@ -281,6 +285,20 @@ class _SearchState extends State<SearchRoutes>
                   ],
                 ),
               ),
+              Flexible(
+                  flex: 1,
+                  child: Column(
+                    children: [
+                      Text("Seats left on the route:",style: TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 17)),
+                      Container(
+                          width: 75,
+                          child: InputField(
+                        controller: seatsLeftC,
+                        keyboardType: TextInputType.number,
+                      )),
+                    ],
+                  )),
             ],
           ),
         ),
@@ -336,7 +354,7 @@ class _SearchState extends State<SearchRoutes>
     });
     Model.sharedInstance
         .searchRoutes(
-            _leftTypeAhead.text, _rightTypeAhead.text, _fromDate, _toDate)
+            _leftTypeAhead.text, _rightTypeAhead.text, _fromDate, _toDate,seatsLeftC.text)
         .then((result) {
       setState(() {
         _searching = false;

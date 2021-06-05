@@ -48,6 +48,7 @@ class MyTypeAheadField<T> extends StatelessWidget {
       suggestionsCallback: onSuggestionSelected,
       itemBuilder: (context, suggestion) {
         return ListTile(
+          hoverColor: Colors.black,
           leading: Icon(Icons.location_city_rounded),
           title: Text(suggestion.name),
           subtitle: Text(suggestion.country),
