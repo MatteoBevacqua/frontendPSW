@@ -20,7 +20,6 @@ class RestManager {
       dynamic body,
       HTTPResponseWrapper wrapper}) async {
 
-    //TODO HTTPS
     Uri uri = Uri.http(serverAddress, servicePath, value);
     bool errorOccurred = false;
     try {

@@ -10,27 +10,44 @@ import 'package:first_from_zero/support/Model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'Layout.dart';
+
 class BookRoute extends StatefulWidget {
+  final LayoutState parentState;
+
+  BookRoute({this.parentState});
+
   @override
-  _BookingState createState() => _BookingState();
+  _BookingState createState() => _BookingState(parentState: parentState);
 }
 
-class _BookingState extends State<BookRoute> {
+class _BookingState extends State<BookRoute> implements Stalker  {
   List<SeatModel> seats;
   HTTPResponseWrapper wrapper = HTTPResponseWrapper();
+  final LayoutState parentState;
+
+  _BookingState({this.parentState}) {
+    GlobalData.observer.addStalker(this);
+  }
+
+
 
   @override
   // ignore: must_call_super
   void initState() {
+    super.initState();
+    if (GlobalData.currentlySelected != null) _updateSeatsAndRebuild();
+    GlobalData.subtotal = 0;
     GlobalData.selectedToBook.clear();
   }
 
   void _updateSeatsAndRebuild() async {
-    await Model.sharedInstance
+     Model.sharedInstance
         .getAvailableSeatsOnRoute(GlobalData.currentlySelected)
         .then((result) {
       setState(() {
         seats = result;
+        GlobalData.subtotal = 0;
       });
     });
   }
@@ -42,13 +59,8 @@ class _BookingState extends State<BookRoute> {
     }
   }
 
-  _BookingState() {
-    if (GlobalData.currentlySelected != null) _updateSeatsAndRebuild();
-  }
-
   void _bookSeats() async {
     Text toShow;
-    bool successful = false;
     for (SeatModel s in GlobalData.selectedToBook) {
       print(s.pricePaid);
       if (s.pricePaid == 0) {
@@ -61,12 +73,12 @@ class _BookingState extends State<BookRoute> {
         return;
       }
     }
+    bool successful = false;
     if (!GlobalData.userIsLoggedIn || GlobalData.selectedToBook.length == 0) {
       if (!GlobalData.userIsLoggedIn)
-        toShow = Text("You need to be logged in in order to book seats");
+        toShow = Text("You must be logged in in order to book seats");
       else
         toShow = Text("Select some seats first");
-
       showDialog(
           context: this.context,
           builder: (BuildContext context) {
@@ -102,25 +114,26 @@ class _BookingState extends State<BookRoute> {
         {
           Model.sharedInstance
               .getById(GlobalData.currentlySelected.id)
-              .then((value) => {
-                    setState(() {
-                      GlobalData.currentlySelected = value;
-                    })
-                  });
+              .then((value) =>
+          {
+            setState(() {
+              GlobalData.currentlySelected = value;
+            })
+          });
           successful = true;
           toShow = Text(
               "Reservation placed successfully!\nYou can edit or delete it from the user page on your right");
+          parentState.goToBooking();
         }
         break;
     }
     _updateSeatsAndRebuild();
-    GlobalData.selectedToBook.clear();
     showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(title: toShow);
         });
-    setState(() {});
+    GlobalData.selectedToBook.clear();
   }
 
   @override
@@ -131,30 +144,47 @@ class _BookingState extends State<BookRoute> {
   Widget top() {
     return GlobalData.currentlySelected == null
         ? Center(
-            child: Text(
-            "Select a route first",
-            style: TextStyle(fontSize: 20),
-          ))
-        : aight();
+        child: Text(
+          "Select a route first",
+          style: TextStyle(fontSize: 20),
+        ))
+        : ok();
   }
 
-  Widget aight() {
+  Widget ok() {
     return Column(children: [
       RouteCard(route: GlobalData.currentlySelected),
       SizedBox(height: 20),
-      TextButton.icon(
-          onPressed: () => _bookSeats(),
-          icon: Icon(Icons.shopping_cart_outlined,
-              color: Theme.of(context).primaryColor),
-          style: TextButton.styleFrom(padding: const EdgeInsets.all(16.0)),
-          label: Text("Book the seats",
+      Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+        TextButton.icon(
+            onPressed: () => _bookSeats(),
+            icon: Icon(Icons.shopping_cart_outlined,
+                color: Theme
+                    .of(context)
+                    .primaryColor),
+            style: TextButton.styleFrom(padding: const EdgeInsets.all(16.0)),
+            label: Text("Book the seats",
+                style: TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                    decorationThickness: 2,
+                    color: Theme
+                        .of(context)
+                        .primaryColor))),
+        Row(children: [
+          Text("Subtotal : ",
               style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
-                  decorationThickness: 2,
-                  color: Theme.of(context).primaryColor))),
+                fontSize: 17,
+              )),
+          Text(GlobalData.subtotal.toString() + "€",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 17,
+              ))
+        ])
+      ]),
       SizedBox(height: 50),
-      seats == null ? CircularProgressIndicator() : getSeats2()
+      seats == null ? CircularProgressIndicator() : getSeats2(),
     ]);
   }
 
@@ -165,10 +195,18 @@ class _BookingState extends State<BookRoute> {
         child: GridView.builder(
           itemCount: seats.length,
           gridDelegate:
-              SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
+          SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
           itemBuilder: (BuildContext context, int index) {
             return TrainSeat(seat: seats[index], modifying: false);
           },
         ));
   }
+
+  @override
+  void receiveUpdate() {
+    setState(() {});
+  }
+
+  @override
+  bool get wantKeepAlive => true;
 }

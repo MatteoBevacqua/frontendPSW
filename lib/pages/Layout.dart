@@ -1,6 +1,7 @@
 import 'package:first_from_zero/pages/BookRoute.dart';
 import 'package:first_from_zero/pages/SearchRoutes.dart';
 import 'package:first_from_zero/pages/UserPage.dart';
+import 'package:first_from_zero/support/Global.dart';
 
 import 'package:flutter/material.dart';
 import 'package:first_from_zero/support/Constants.dart';
@@ -17,8 +18,9 @@ class Layout extends StatefulWidget {
 
 class LayoutState extends State<Layout> {
   TabController _controller;
+
   void goToBooking() {
-      _controller.animateTo(1);
+    _controller.animateTo(1,duration : Duration(milliseconds: 750));
   }
 
   int index = 0;
@@ -38,12 +40,19 @@ class LayoutState extends State<Layout> {
                   Tab(
                       text: "Book your seats",
                       icon: Icon(Icons.shopping_cart_outlined)),
-                  Tab(text:"Login",icon: Icon(Icons.supervised_user_circle)),
-                  Tab(text:"Quickest Route" , icon : Icon(Icons.fast_forward))
+                  Tab(
+                      text: GlobalData.userIsLoggedIn ? "User page" : "Login",
+                      icon: Icon(Icons.supervised_user_circle)),
+                  Tab(text: "Quickest Route", icon: Icon(Icons.fast_forward))
                 ]),
               ),
               body: TabBarView(
-                children: [SearchRoutes(parentState: this), BookRoute(),UserPage(),ShortestRoute()],
+                children: [
+                  SearchRoutes(parentState: this),
+                  BookRoute(parentState: this),
+                  UserPage(layoutState: this),
+                  ShortestRoute()
+                ],
               ));
         }));
   }

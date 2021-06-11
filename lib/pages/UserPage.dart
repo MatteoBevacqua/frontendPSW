@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:first_from_zero/managers/RestManager.dart';
 import 'package:first_from_zero/models/Reservation.dart';
 import 'package:first_from_zero/models/SeatModel.dart';
+import 'package:first_from_zero/myWidgets/PasswordField.dart';
 import 'package:first_from_zero/myWidgets/ReservationCard.dart';
 import 'package:first_from_zero/myWidgets/TrainSeat.dart';
+import 'package:first_from_zero/pages/Layout.dart';
 import 'package:first_from_zero/support/Global.dart';
 import 'package:first_from_zero/support/Model.dart';
 import 'package:flutter/cupertino.dart';
@@ -13,18 +17,23 @@ import '../models/Passenger.dart';
 import 'SearchRoutes.dart';
 
 class UserPage extends StatefulWidget {
-  UserPage({Key key}) : super(key: key);
+  UserPage({Key key, this.layoutState}) : super(key: key);
+  final LayoutState layoutState;
 
   @override
-  _UserState createState() => _UserState();
+  _UserState createState() => _UserState(layoutState: layoutState);
 }
 
-class _UserState extends State<UserPage>
-    with AutomaticKeepAliveClientMixin<UserPage> {
+class _UserState extends State<UserPage> implements Stalker {
   bool _adding = false;
   List<Reservation> _myRes;
   Passenger _justAddedUser;
   List<SeatModel> resSeats;
+  final LayoutState layoutState;
+
+  _UserState({this.layoutState}) {
+    GlobalData.observer.addStalker(this);
+  }
 
   TextEditingController _firstNameFiledController = TextEditingController();
   TextEditingController _lastNameFiledController = TextEditingController();
@@ -40,9 +49,9 @@ class _UserState extends State<UserPage>
 
   @override
   void initState() {
+    super.initState();
     if (GlobalData.userIsLoggedIn)
-      Model.sharedInstance.getReservations().then((value) =>
-          setState(() {
+      Model.sharedInstance.getReservations().then((value) => setState(() {
             _myRes = value;
           }));
   }
@@ -66,34 +75,39 @@ class _UserState extends State<UserPage>
           SizedBox(height: 20),
           TextButton.icon(
               onPressed: () async {
+                showDialog(
+                    context: this.context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                          title: Text("Your new subtotal will be : " +
+                              GlobalData.modifyingSubtotal.toString() + "€"));
+                    });
+                await Future.delayed(Duration(seconds: 1));
+                Navigator.pop(context);
                 var exitCode = await Model.sharedInstance.modifyReservation(r);
-                GlobalData.clearBookingData();
                 Text toShow;
                 _getMyReservations();
-                if (exitCode)
-                  toShow = Text("Modification successful!");
-                else
-                  toShow = Text(
+                if (exitCode) {
+                  toShow = const Text("Modification successful!");
+                } else
+                  toShow = const Text(
                       "Some of the seats you wanted to add have already been booked!");
+                await Future.delayed(Duration(milliseconds: 250));
+                Navigator.of(context).pop();
                 showDialog(
                     context: this.context,
                     builder: (BuildContext context) {
                       return AlertDialog(title: toShow);
                     });
-                setState(() { });
               },
-              icon: Icon(Icons.edit, color: Theme
-                  .of(context)
-                  .primaryColor),
+              icon: Icon(Icons.edit, color: Theme.of(context).primaryColor),
               style: TextButton.styleFrom(padding: const EdgeInsets.all(16.0)),
               label: Text("Submit changes",
                   style: TextStyle(
                       fontSize: 25,
                       fontWeight: FontWeight.bold,
                       decorationThickness: 2,
-                      color: Theme
-                          .of(context)
-                          .primaryColor))),
+                      color: Theme.of(context).primaryColor))),
           SizedBox(height: 50),
           Expanded(
               flex: 1,
@@ -104,17 +118,26 @@ class _UserState extends State<UserPage>
                 itemBuilder: (BuildContext context, int index) {
                   SeatModel reservedDTO;
                   bool byMe = r.reservedSeats.contains(resSeats[index]);
-                  if (byMe) reservedDTO =
-                      r.reservedSeats.firstWhere((element) => element.id ==
-                          resSeats[index].id);
-
+                  if (byMe)
+                    reservedDTO = r.reservedSeats.firstWhere(
+                        (element) => element.id == resSeats[index].id);
                   return TrainSeat(
-                  seat: resSeats[index],
-                  selectedByMe: byMe,
-                  selected: resSeats[index].isBooked,
-                  modifying: true ,
-                  adult: resSeats[index].isBooked && byMe &&reservedDTO.pricePaid==resSeats[index].adultPrice?1:0 ,
-                  child: resSeats[index].isBooked && byMe && reservedDTO.pricePaid==resSeats[index].childrenPrice?1:0 );
+                      seat: resSeats[index],
+                      selectedByMe: byMe,
+                      selected: resSeats[index].isBooked,
+                      modifying: true,
+                      adult: resSeats[index].isBooked &&
+                              byMe &&
+                              reservedDTO.pricePaid ==
+                                  resSeats[index].adultPrice
+                          ? 1
+                          : 0,
+                      child: resSeats[index].isBooked &&
+                              byMe &&
+                              reservedDTO.pricePaid ==
+                                  resSeats[index].childrenPrice
+                          ? 1
+                          : 0);
                 },
               ))
         ]));
@@ -124,48 +147,46 @@ class _UserState extends State<UserPage>
     return Expanded(
       child: Container(
           child: ListView.builder(
-            itemCount: _myRes.length,
-            itemBuilder: (context, index) {
-              return ReservationCard(
-                reservation: _myRes[index],
-                modify: () async {
-                  resSeats = await Model.sharedInstance
-                      .getAvailableSeatsOnRoute(_myRes[index].bookedRoute);
-                  resSeats.sort((a, b) => a.id.compareTo(b.id));
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              modifyReservation(_myRes[index])));
-                },
-                delete: () async {
-                  bool value = await Model.sharedInstance.deleteReservation(
-                      _myRes[index],
-                      wrapper: HTTPResponseWrapper());
-                  Text toShow;
-                  if (value && GlobalData.currentlySelected!=null) {
-                    Model.sharedInstance
-                        .getById(GlobalData.currentlySelected.id)
-                        .then((value) =>
-                    {
-                      setState(() {
-                        GlobalData.currentlySelected = value;
-                      })
-                    });
-                    toShow = Text("Reservation deleted successfully!");
-                  } else
-                    toShow = Text("There was an error,try again");
-                  showDialog(
-                      context: this.context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(title: toShow);
-                      });
-                  _getMyReservations();
-                },
-                //  onTap: () => setSelectedInCard(_routes[index]),
-              );
+        itemCount: _myRes.length,
+        itemBuilder: (context, index) {
+          return ReservationCard(
+            reservation: _myRes[index],
+            modify: () async {
+              resSeats = await Model.sharedInstance
+                  .getAvailableSeatsOnRoute(_myRes[index].bookedRoute);
+              resSeats.sort((a, b) => a.id.compareTo(b.id));
+              Navigator.push(
+                  this.context,
+                  MaterialPageRoute(
+                      builder: (context) => modifyReservation(_myRes[index])));
             },
-          )),
+            delete: () async {
+              bool value = await Model.sharedInstance.deleteReservation(
+                  _myRes[index],
+                  wrapper: HTTPResponseWrapper());
+              Text toShow;
+              if (value && GlobalData.currentlySelected != null) {
+                Model.sharedInstance
+                    .getById(GlobalData.currentlySelected.id)
+                    .then((value) => {
+                          setState(() {
+                            GlobalData.currentlySelected = value;
+                          })
+                        });
+                toShow = Text("Reservation deleted successfully!");
+              } else
+                toShow = Text("There was an error,try again");
+              showDialog(
+                  context: this.context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(title: toShow);
+                  });
+              _getMyReservations();
+            },
+            //  onTap: () => setSelectedInCard(_routes[index]),
+          );
+        },
+      )),
     );
   }
 
@@ -179,7 +200,7 @@ class _UserState extends State<UserPage>
                 children: [
                   Text("My bookings",
                       style:
-                      TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                   TextButton.icon(
                       onPressed: () {
                         Model.sharedInstance.logOut();
@@ -207,9 +228,7 @@ class _UserState extends State<UserPage>
                 "Login",
                 style: TextStyle(
                   fontSize: 20,
-                  color: Theme
-                      .of(context)
-                      .primaryColor,
+                  color: Theme.of(context).primaryColor,
                 ),
               ),
             ),
@@ -221,10 +240,9 @@ class _UserState extends State<UserPage>
                     labelText: "Email",
                     controller: _emailFiledController,
                   ),
-                  InputField(
+                  PasswordField(
                     labelText: "Password",
                     controller: _passwordController,
-                    isPassword: true,
                   ),
                   Padding(
                       padding: EdgeInsets.all(15),
@@ -240,14 +258,12 @@ class _UserState extends State<UserPage>
                             TextButton.icon(
                                 style: ButtonStyle(
                                     foregroundColor:
-                                    MaterialStateProperty.resolveWith(
-                                            (states) =>
-                                        Theme
-                                            .of(context)
-                                            .primaryColor)),
+                                        MaterialStateProperty.resolveWith(
+                                            (states) => Theme.of(context)
+                                                .primaryColor)),
                                 onPressed: () {
                                   setState(
-                                        () {
+                                    () {
                                       GlobalData.userHasAnAccount = false;
                                     },
                                   );
@@ -276,9 +292,7 @@ class _UserState extends State<UserPage>
                 "Register",
                 style: TextStyle(
                   fontSize: 15,
-                  color: Theme
-                      .of(context)
-                      .primaryColor,
+                  color: Theme.of(context).primaryColor,
                 ),
               ),
             ),
@@ -298,11 +312,8 @@ class _UserState extends State<UserPage>
                     labelText: "Email",
                     controller: _emailFiledController,
                   ),
-                  InputField(
-                    labelText: "Password",
-                    controller: _passwordController,
-                    isPassword: true,
-                  ),
+                  PasswordField(
+                      labelText: "Password", controller: _passwordController),
                   Padding(
                       padding: EdgeInsets.all(15),
                       child: Row(
@@ -311,11 +322,9 @@ class _UserState extends State<UserPage>
                             TextButton.icon(
                                 style: ButtonStyle(
                                     foregroundColor:
-                                    MaterialStateProperty.resolveWith(
-                                            (states) =>
-                                        Theme
-                                            .of(context)
-                                            .primaryColor)),
+                                        MaterialStateProperty.resolveWith(
+                                            (states) => Theme.of(context)
+                                                .primaryColor)),
                                 onPressed: () {
                                   _register();
                                 },
@@ -324,17 +333,14 @@ class _UserState extends State<UserPage>
                             TextButton.icon(
                                 style: ButtonStyle(
                                     foregroundColor:
-                                    MaterialStateProperty.resolveWith(
-                                            (states) =>
-                                        Theme
-                                            .of(context)
-                                            .primaryColor)),
-                                onPressed: () =>
-                                {
-                                  setState(() {
-                                    GlobalData.userHasAnAccount = true;
-                                  })
-                                },
+                                        MaterialStateProperty.resolveWith(
+                                            (states) => Theme.of(context)
+                                                .primaryColor)),
+                                onPressed: () => {
+                                      setState(() {
+                                        GlobalData.userHasAnAccount = true;
+                                      })
+                                    },
                                 label: Text(
                                     "Already have an account ? \n      Login"),
                                 icon: Icon(Icons.login))
@@ -345,8 +351,8 @@ class _UserState extends State<UserPage>
                       child: _adding
                           ? CircularProgressIndicator()
                           : _justAddedUser != null
-                          ? Text("Welcome!")
-                          : SizedBox.shrink(),
+                              ? Text("Welcome!")
+                              : SizedBox.shrink(),
                     ),
                   ),
                 ],
@@ -359,8 +365,7 @@ class _UserState extends State<UserPage>
   }
 
   void _getMyReservations() {
-    Model.sharedInstance.getReservations().then((value) =>
-        setState(() {
+    Model.sharedInstance.getReservations().then((value) => setState(() {
           _myRes = value;
           if (_myRes != null) _myRes.sort((a, b) => a.id.compareTo(b.id));
         }));
@@ -370,7 +375,7 @@ class _UserState extends State<UserPage>
     if (!_checkFields(true)) return;
     Model.sharedInstance
         .logIn(
-        _emailFiledController.text.trim(), _passwordController.text.trim())
+            _emailFiledController.text.trim(), _passwordController.text.trim())
         .then((result) {
       setState(() {
         GlobalData.userIsLoggedIn = result == LogInResult.logged;
@@ -421,20 +426,36 @@ class _UserState extends State<UserPage>
       _adding = true;
       _justAddedUser = null;
     });
-    _justAddedUser = Passenger(
+    var p = Passenger(
       firstName: _firstNameFiledController.text.trim(),
       lastName: _lastNameFiledController.text.trim(),
       email: _emailFiledController.text.trim(),
       password: _passwordController.text.trim(),
     );
-    Model.sharedInstance.addUser(_justAddedUser).then((result) {
+    Model.sharedInstance.addUser(p).then((result) {
       setState(() {
         _adding = false;
-        if (result != null) GlobalData.userHasAnAccount = true;
+        if (result != null) {
+          GlobalData.userHasAnAccount = true;
+        } else
+          showDialog(
+              context: this.context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                    title: Text(
+                        "Something went wrong when creating the account,try again later"));
+              });
+        _justAddedUser = result;
       });
     });
   }
 
   @override
   bool get wantKeepAlive => true;
+
+  @override
+  void receiveUpdate() {
+    print(GlobalData.modifyingSubtotal);
+    setState(() {});
+  }
 }

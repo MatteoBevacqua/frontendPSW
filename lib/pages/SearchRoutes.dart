@@ -28,6 +28,7 @@ class _SearchState extends State<SearchRoutes>
 
   @override
   initState() {
+    super.initState();
     sort = (a, b) => ascending ? a.id.compareTo(b.id) : -a.id.compareTo(b.id);
   }
 
@@ -54,7 +55,6 @@ class _SearchState extends State<SearchRoutes>
 
   void setSelected(RouteModel model) {
     this._selected = model;
-    print("selected is " + _selected.toJson().toString());
   }
 
   void _selectDate(bool first) async {

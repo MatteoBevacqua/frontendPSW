@@ -22,12 +22,12 @@ class _ShortestRouteState extends State<ShortestRoute> with AutomaticKeepAliveCl
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [top(), bottom()]);
+    return Column(children: [top(),SizedBox( height: 25), bottom()]);
   }
 
   Widget bottom() {
     return _routeModels == null
-        ? Text("")
+        ? Text("No results matching the selected criteria")
         : Flexible(
             child: ListView.builder(
             itemCount: _routeModels.length,
@@ -121,8 +121,8 @@ class _ShortestRouteState extends State<ShortestRoute> with AutomaticKeepAliveCl
                 padding: EdgeInsets.all(15),
                 child: OutlinedButton.icon(
                     onPressed: () => _selectDate(),
-                    label: Text('Select a day and a departure time'),
-                    icon: Icon(Icons.date_range),
+                    label: Text('Select a day'),
+                    icon: Icon(Icons.today),
                     style: OutlinedButton.styleFrom(
                       primary: Colors.black,
                       backgroundColor: Colors.white,
@@ -151,7 +151,7 @@ class _ShortestRouteState extends State<ShortestRoute> with AutomaticKeepAliveCl
                 child: OutlinedButton.icon(
                     onPressed: () => _pickTime(),
                     label: Text('Select a departure time'),
-                    icon: Icon(Icons.date_range),
+                    icon: Icon(Icons.timer),
                     style: OutlinedButton.styleFrom(
                       primary: Colors.black,
                       backgroundColor: Colors.white,
