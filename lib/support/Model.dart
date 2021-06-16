@@ -1,16 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:first_from_zero/models/City.dart';
-import 'package:first_from_zero/models/Passenger.dart';
-import 'package:first_from_zero/models/Reservation.dart';
-import 'package:first_from_zero/models/RouteModel.dart';
-import 'package:first_from_zero/models/SeatModel.dart';
-import 'package:first_from_zero/support/Global.dart';
+import 'package:frontendpsw/models/City.dart';
+import 'package:frontendpsw/models/Passenger.dart';
+import 'package:frontendpsw/models/Reservation.dart';
+import 'package:frontendpsw/models/RouteModel.dart';
+import 'package:frontendpsw/models/SeatModel.dart';
+import 'package:frontendpsw/support/Global.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'Constants.dart';
-import 'package:first_from_zero/managers/RestManager.dart';
-import 'package:first_from_zero/models/AuthenticationData.dart';
+import 'package:frontendpsw/managers/RestManager.dart';
+import 'package:frontendpsw/models/AuthenticationData.dart';
 import 'package:http/http.dart' as http;
 
 enum LogInResult {
@@ -39,7 +39,7 @@ class Model {
           params,
           type: TypeHeader.urlencoded);
       _authenticationData = AuthenticationData.fromJson(jsonDecode(result));
-      print(_authenticationData);
+      (_authenticationData);
       if (_authenticationData.hasError()) {
         if (_authenticationData.error == "Invalid user credentials") {
           return LogInResult.error_wrong_credentials;
@@ -56,7 +56,7 @@ class Model {
       });
       return LogInResult.logged;
     } catch (e) {
-      print(e);
+      (e);
       return LogInResult.error_unknown;
     }
   }
@@ -70,7 +70,7 @@ class Model {
           Constants.ROUTES + Constants.ROUTE_BY_ID,
           params)));
     } catch (e) {
-      print(e);
+      (e);
       return null;
     }
   }
@@ -84,7 +84,7 @@ class Model {
           .toList());
       return res;
     } catch (e) {
-      print(e);
+      (e);
       return null;
     }
   }
@@ -135,14 +135,14 @@ class Model {
   Future<List<City>> getSuggestedCitiesByPattern(String pattern) async {
     Map<String, String> params = Map();
     params['pattern'] = pattern;
-    print(pattern);
+    (pattern);
     try {
       var resp = await _restManager.makeGetRequest(
           Constants.SERVER_ADDRESS, Constants.CITY_AUTOFILL_ENDPOINT, params);
       return List<City>.from(
           json.decode(resp).map((i) => City.fromJson(i)).toList());
     } catch (e) {
-      print("error  $e");
+      ("error  $e");
       return null; // not the best solution
     }
   }
@@ -168,7 +168,7 @@ class Model {
     } else {
       endpoint = Constants.ALL_ROUTES;
     }
-    print(endpoint);
+    (endpoint);
     try {
       return List<RouteModel>.from(json
           .decode(await _restManager.makeGetRequest(Constants.SERVER_ADDRESS,
@@ -176,7 +176,7 @@ class Model {
           .map((i) => RouteModel.fromJson(i))
           .toList());
     } catch (e) {
-      print("$e");
+      ("$e");
       return null; // not the best solution
     }
   }
@@ -191,7 +191,7 @@ class Model {
           .map((i) => SeatModel.fromJson(i, false))
           .toList());
     } catch (e) {
-      print("error + $e");
+      ("error + $e");
       return null; // not the best solution
     }
   }
@@ -200,7 +200,7 @@ class Model {
     try {
       var rawResult = await _restManager.makePostRequest(
           Constants.SERVER_ADDRESS, Constants.REQUEST_ADD_PASSENGER, user);
-      print(rawResult);
+      (rawResult);
       if (rawResult == null) {
         return null; // not the best solution
       } else {
@@ -221,14 +221,14 @@ class Model {
           value: params, wrapper: wrapper));
       return wrapper.response == 200;
     } catch (e) {
-      print(e.toString() + " in model");
+      (e.toString() + " in model");
       return false;
     }
   }
 
   Future<bool> modifyReservation(Reservation r) async {
     try {
-      print(GlobalData.currentBooking.toString() + " book");
+      (GlobalData.currentBooking.toString() + " book");
       if (GlobalData.currentBooking.length == 0) {
         this.deleteReservation(r);
         return true;
@@ -256,8 +256,8 @@ class Model {
           toAdd.map((e) => {'id': e.id, 'pricePaid': e.pricePaid}));
       body['toRemove'] = List<dynamic>.from(toRemove.map((e) => {'id': e.id}));
       HTTPResponseWrapper wrapper = HTTPResponseWrapper();
-      print("printing modified res");
-      print(body);
+      ("ing modified res");
+      (body);
       await _restManager.makePutRequest(
           Constants.SERVER_ADDRESS, Constants.RESERVATIONS,
           body: body, wrapper: wrapper);
@@ -271,7 +271,7 @@ class Model {
       }
       return wrapper.response == 200;
     } catch (e) {
-      print(e);
+      (e);
       return false;
     }
   }
@@ -284,7 +284,7 @@ class Model {
           Constants.MAKE_RESERVATION,
           r.toPostableDTO(),
           wrapper: wrapper));
-      print(r.toPostableDTO().toString());
+      (r.toPostableDTO().toString());
       return res;
     } catch (e) {
       return null; // not the best solution
@@ -315,7 +315,7 @@ class Model {
           Constants.REQUEST_LOGIN,
           params,
           type: TypeHeader.urlencoded);
-      print(result);
+      (result);
       _authenticationData = AuthenticationData.fromJson(jsonDecode(result));
       if (_authenticationData.hasError()) {
         return false;
@@ -335,10 +335,8 @@ class Model {
     params['hour'] = timeOfDay.hour.toString();
     params['minutes'] = timeOfDay.minute.toString();
     params['date'] = day.toIso8601String();
-    print("called");
     var resp = await _restManager.makeGetRequest(
         Constants.SERVER_ADDRESS, Constants.REQUEST_GET_FASTEST_ROUTE, params);
-    print(resp);
     if (resp != '')
       return List<RouteModel>.from(
           json.decode(resp).map((i) => RouteModel.fromJson(i)).toList());

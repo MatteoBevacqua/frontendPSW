@@ -1,6 +1,6 @@
-import 'package:first_from_zero/models/Reservation.dart';
-import 'package:first_from_zero/models/RouteModel.dart';
-import 'package:first_from_zero/models/SeatModel.dart';
+import 'package:frontendpsw/models/Reservation.dart';
+import 'package:frontendpsw/models/RouteModel.dart';
+import 'package:frontendpsw/models/SeatModel.dart';
 
 class GlobalData {
   static RouteModel currentlySelected;

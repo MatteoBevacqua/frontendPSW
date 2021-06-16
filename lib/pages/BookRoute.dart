@@ -1,12 +1,12 @@
 import 'dart:async';
 
-import 'package:first_from_zero/managers/RestManager.dart';
-import 'package:first_from_zero/models/Reservation.dart';
-import 'package:first_from_zero/myWidgets/TrainSeat.dart';
-import 'package:first_from_zero/pages/SearchRoutes.dart';
-import 'package:first_from_zero/models/SeatModel.dart';
-import 'package:first_from_zero/support/Global.dart';
-import 'package:first_from_zero/support/Model.dart';
+import 'package:frontendpsw/managers/RestManager.dart';
+import 'package:frontendpsw/models/Reservation.dart';
+import 'package:frontendpsw/myWidgets/TrainSeat.dart';
+import 'package:frontendpsw/pages/SearchRoutes.dart';
+import 'package:frontendpsw/models/SeatModel.dart';
+import 'package:frontendpsw/support/Global.dart';
+import 'package:frontendpsw/support/Model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -62,7 +62,7 @@ class _BookingState extends State<BookRoute> implements Stalker  {
   void _bookSeats() async {
     Text toShow;
     for (SeatModel s in GlobalData.selectedToBook) {
-      print(s.pricePaid);
+      (s.pricePaid);
       if (s.pricePaid == 0) {
         showDialog(
             context: this.context,

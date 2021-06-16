@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
-import 'package:first_from_zero/support/Constants.dart';
+import 'package:frontendpsw/support/Constants.dart';
 import 'package:http/http.dart';
 
 enum TypeHeader { json, urlencoded }
@@ -19,8 +19,7 @@ class RestManager {
       {Map<String, String> value,
       dynamic body,
       HTTPResponseWrapper wrapper}) async {
-
-    Uri uri = Uri.http(serverAddress, servicePath, value);
+    Uri uri = Uri.https(serverAddress, servicePath, value);
     bool errorOccurred = false;
     try {
       var response;
@@ -68,7 +67,7 @@ class RestManager {
       if (wrapper != null) wrapper.response = response.statusCode;
       return response.body;
     } catch (err) {
-      print(err);
+      (err);
       if (wrapper != null) wrapper.response = -1;
       errorOccurred = true;
     }

@@ -1,5 +1,5 @@
-import 'package:first_from_zero/models/Reservation.dart';
-import 'package:first_from_zero/support/Utils.dart';
+import 'package:frontendpsw/models/Reservation.dart';
+import 'package:frontendpsw/support/Utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -76,7 +76,9 @@ class ReservationCard extends StatelessWidget {
                       Text(
                         Utils.formatDate(reservation.bookedRoute.departureTime),
                         style: TextStyle(fontSize: 15),
-                      )
+                      ),SizedBox(width:15)
+                      ,Text("Booked at : ",style: style),
+                      Text(Utils.formatDate(reservation.reservationBookingDate),style: TextStyle(fontSize: 15),)
                     ],
                   ),
                   Row(

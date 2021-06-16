@@ -4,8 +4,8 @@ class Constants {
   static final String APP_NAME = "Journey Planner";
 
   // addresses
-  static final String SERVER_ADDRESS = "localhost:8080";
-  static final String ADDRESS_AUTHENTICATION_SERVER = "localhost:8180";
+  static final String SERVER_ADDRESS = "journeyrestapi.ddns.net:8080";
+  static final String ADDRESS_AUTHENTICATION_SERVER = "journeyrestapi.ddns.net:8443";
 
   // authentication
   static final String REALM = "journey_planner";

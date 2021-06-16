@@ -1,11 +1,11 @@
 {
-    "name": "first_from_zero",
-    "short_name": "first_from_zero",
+    "name": "journeyPlanner",
+    "short_name": "journeyPlanner",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "progetto piattaforme",
+    "description": "front-end PSW",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

@@ -1,14 +1,14 @@
 import 'dart:io';
 
-import 'package:first_from_zero/managers/RestManager.dart';
-import 'package:first_from_zero/models/Reservation.dart';
-import 'package:first_from_zero/models/SeatModel.dart';
-import 'package:first_from_zero/myWidgets/PasswordField.dart';
-import 'package:first_from_zero/myWidgets/ReservationCard.dart';
-import 'package:first_from_zero/myWidgets/TrainSeat.dart';
-import 'package:first_from_zero/pages/Layout.dart';
-import 'package:first_from_zero/support/Global.dart';
-import 'package:first_from_zero/support/Model.dart';
+import 'package:frontendpsw/managers/RestManager.dart';
+import 'package:frontendpsw/models/Reservation.dart';
+import 'package:frontendpsw/models/SeatModel.dart';
+import 'package:frontendpsw/myWidgets/PasswordField.dart';
+import 'package:frontendpsw/myWidgets/ReservationCard.dart';
+import 'package:frontendpsw/myWidgets/TrainSeat.dart';
+import 'package:frontendpsw/pages/Layout.dart';
+import 'package:frontendpsw/support/Global.dart';
+import 'package:frontendpsw/support/Model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../myWidgets/CircularIconButton.dart';
@@ -80,10 +80,11 @@ class _UserState extends State<UserPage> implements Stalker {
                     builder: (BuildContext context) {
                       return AlertDialog(
                           title: Text("Your new subtotal will be : " +
-                              GlobalData.modifyingSubtotal.toString() + "€"));
+                              GlobalData.modifyingSubtotal.toString() +
+                              "€"));
                     });
                 await Future.delayed(Duration(seconds: 1));
-                Navigator.pop(context);
+                if (Navigator.canPop(context)) Navigator.of(context).pop();
                 var exitCode = await Model.sharedInstance.modifyReservation(r);
                 Text toShow;
                 _getMyReservations();
@@ -93,7 +94,7 @@ class _UserState extends State<UserPage> implements Stalker {
                   toShow = const Text(
                       "Some of the seats you wanted to add have already been booked!");
                 await Future.delayed(Duration(milliseconds: 250));
-                Navigator.of(context).pop();
+                if (Navigator.canPop(context)) Navigator.of(context).pop();
                 showDialog(
                     context: this.context,
                     builder: (BuildContext context) {
@@ -455,7 +456,7 @@ class _UserState extends State<UserPage> implements Stalker {
 
   @override
   void receiveUpdate() {
-    print(GlobalData.modifyingSubtotal);
+    (GlobalData.modifyingSubtotal);
     setState(() {});
   }
 }

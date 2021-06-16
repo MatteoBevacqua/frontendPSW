@@ -1,6 +1,6 @@
-import 'package:first_from_zero/models/SeatModel.dart';
-import 'package:first_from_zero/support/Global.dart';
-import 'package:first_from_zero/support/Utils.dart';
+import 'package:frontendpsw/models/SeatModel.dart';
+import 'package:frontendpsw/support/Global.dart';
+import 'package:frontendpsw/support/Utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;

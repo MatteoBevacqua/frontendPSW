@@ -1,5 +1,5 @@
-name: first_from_zero
-description: progetto piattaforme
+name: frontendpsw
+description: front-end
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.

@@ -1,6 +1,9 @@
-import 'package:first_from_zero/models/RouteModel.dart';
-import 'package:first_from_zero/myWidgets/MyTypeAheadField.dart';
-import 'package:first_from_zero/support/Model.dart';
+import 'package:frontendpsw/models/RouteModel.dart';
+import 'package:frontendpsw/myWidgets/MyTypeAheadField.dart';
+import 'package:frontendpsw/pages/BookRoute.dart';
+import 'package:frontendpsw/pages/Layout.dart';
+import 'package:frontendpsw/support/Global.dart';
+import 'package:frontendpsw/support/Model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -8,11 +11,21 @@ import 'package:intl/intl.dart';
 import 'SearchRoutes.dart';
 
 class ShortestRoute extends StatefulWidget {
+  ShortestRoute({this.layoutState});
+
+  final LayoutState layoutState;
+
   @override
-  _ShortestRouteState createState() => _ShortestRouteState();
+  _ShortestRouteState createState() =>
+      _ShortestRouteState(layoutState: this.layoutState);
 }
 
-class _ShortestRouteState extends State<ShortestRoute> with AutomaticKeepAliveClientMixin<ShortestRoute>{
+class _ShortestRouteState extends State<ShortestRoute>
+    with AutomaticKeepAliveClientMixin<ShortestRoute> {
+  LayoutState layoutState;
+
+  _ShortestRouteState({this.layoutState});
+
   TextEditingController _leftTypeAhead = TextEditingController(),
       _rightTypeAhead = TextEditingController();
   DateTime _selectedDay = DateTime.now();
@@ -22,7 +35,11 @@ class _ShortestRouteState extends State<ShortestRoute> with AutomaticKeepAliveCl
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [top(),SizedBox( height: 25), bottom()]);
+    return GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: Column(children: [top(), SizedBox(height: 25), bottom()]));
   }
 
   Widget bottom() {
@@ -34,7 +51,12 @@ class _ShortestRouteState extends State<ShortestRoute> with AutomaticKeepAliveCl
             itemBuilder: (context, index) {
               return RouteCard(
                 route: _routeModels[index],
-                onTap: () => print(_routeModels[index]),
+                onTap: () {
+                  ("tapped");
+                  GlobalData.currentlySelected = _routeModels[index];
+                  (GlobalData.currentlySelected);
+                  this.layoutState.goToBooking();
+                },
               );
             },
           ));
@@ -204,8 +226,5 @@ class _ShortestRouteState extends State<ShortestRoute> with AutomaticKeepAliveCl
   }
 
   @override
-
   bool get wantKeepAlive => true;
-
-
 }
